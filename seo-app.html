@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SEO Metadata Generator</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #2c2f36;
+        padding: 20px;
+        min-height: 100vh;
+        color: #f0f0f0;
+        display: flex;
+        justify-content: center;
+    }
+
+    .container {
+        max-width: 900px;
+        width: 100%;
+    }
+
+    h2, h3 {
+        color: #f0f0f0;
+    }
+
+    h3.single-title,
+    h3.batch-title {
+        color: #666;
+    }
+
+    input, textarea, button {
+        font-size: 16px;
+        padding: 10px;
+        width: 100%;
+        margin-bottom: 10px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        box-sizing: border-box;
+    }
+
+    button {
+        background: #007bff;
+        color: white;
+        border: none;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    button:hover {
+        background: #0056b3;
+    }
+
+    .card {
+        background: #fff;
+        color: #000;
+        padding: 20px;
+        margin-bottom: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+
+    .result-section {
+        margin-bottom: 15px;
+    }
+
+    .result-section h4 {
+        margin: 0 0 5px 0;
+        color: #333;
+    }
+
+    .result-section .editable {
+        margin: 0;
+        padding: 8px;
+        background: #f2f2f2;
+        border-radius: 5px;
+        min-height: 40px;
+        outline: none;
+        word-wrap: break-word;
+    }
+
+    .keywords {
+        background: #fffae6;
+        color: #b36b00;
+        font-weight: bold;
+    }
+
+    .pixelCounter {
+        font-size: 12px;
+        text-align: right;
+        color: #444;
+        margin-top: 4px;
+    }
+
+    .pixelCounter.over {
+        color: red;
+        font-weight: bold;
+    }
+
+    .copyBtn {
+        margin-top: 6px;
+        padding: 6px 10px;
+        width: auto;
+        font-size: 14px;
+        background: #28a745;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .copyBtn.copied {
+        background: #1f7e34;
+        color: #fff;
+    }
+
+    .pixel-inputs {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 10px;
+    }
+
+    .pixel-inputs input {
+        flex: 1;
+    }
+
+    .pixel-label {
+        font-size: 14px;
+        color: #333;
+        margin-bottom: 4px;
+    }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h2>SEO Metadata Generator</h2>
+
+<!-- -------------------------- SINGLE TOPIC GENERATOR -------------------------- -->
+<div class="card">
+    <h3 class="single-title">Single Topic Generator</h3>
+
+    <input id="topic" placeholder="Topic" />
+    <input id="descriptionInput" placeholder="Description" />
+
+    <div class="pixel-inputs">
+        <div>
+            <div class="pixel-label">Title</div>
+            <input id="singleTitleLimit" type="number" value="580">
+        </div>
+        <div>
+            <div class="pixel-label">Description</div>
+            <input id="singleDescLimit" type="number" value="990">
+        </div>
+    </div>
+
+    <button onclick="generate()">Generate</button>
+    <div id="loadingSingle" style="display:none; color:#007bff; font-weight:bold;">Generating...</div>
+    <div id="singleResult" class="card" style="display:none;"></div>
+</div>
+
+<!-- -------------------------- BATCH GENERATOR -------------------------- -->
+<div class="card">
+    <h3 class="batch-title">Batch Generate Topics</h3>
+
+    <textarea id="topics" placeholder="Enter topics, one per line..." rows="6"></textarea>
+
+    <div class="pixel-inputs">
+        <div>
+            <div class="pixel-label">Title</div>
+            <input id="batchTitleLimit" type="number" value="580">
+        </div>
+        <div>
+            <div class="pixel-label">Description</div>
+            <input id="batchDescLimit" type="number" value="990">
+        </div>
+    </div>
+
+    <button onclick="generateAll()">Generate All</button>
+    <button onclick="downloadCSV()">Download CSV</button>
+    <div id="loadingBatch" style="display:none; color:#007bff; font-weight:bold;">Generating...</div>
+    <div id="allResults"></div>
+</div>
+
+<script>
+// Estimate pixel width
+function calculatePixels(text) {
+    return Math.round(text.length * 7.2);
+}
+
+// Copy helper
+function copyText(button, text) {
+    navigator.clipboard.writeText(text);
+    button.classList.add("copied");
+    setTimeout(() => button.classList.remove("copied"), 700);
+}
+
+// Update pixel counter for editable divs
+function updatePixelCounter(div, counterId, limit) {
+    const px = calculatePixels(div.innerText);
+    const counter = document.getElementById(counterId);
+    counter.textContent = `${px}px / ${limit}px`;
+    counter.className = 'pixelCounter' + (px > limit ? ' over' : '');
+}
+
+// --------------------------- SINGLE GENERATE ------------------------------
+async function generate() {
+    const topic = document.getElementById("topic").value.trim();
+    const descInput = document.getElementById("descriptionInput").value.trim();
+    if (!topic) return alert("Please enter a topic");
+
+    const titleLimit = parseInt(document.getElementById("singleTitleLimit").value);
+    const descLimit = parseInt(document.getElementById("singleDescLimit").value);
+
+    document.getElementById("loadingSingle").style.display = "block";
+    const resultDiv = document.getElementById("singleResult");
+    resultDiv.style.display = "none";
+    resultDiv.innerHTML = "";
+
+    try {
+        const res = await fetch("/generate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ topic, maxLength: 160, description: descInput })
+        });
+
+        const data = await res.json();
+
+        resultDiv.innerHTML = `
+            <div class="result-section">
+                <h4>Title</h4>
+                <div id="singleTitle" class="editable" contenteditable="true">${data.title}</div>
+                <div id="singleTitleCounter" class="pixelCounter"></div>
+                <button class="copyBtn" onclick="copyText(this, document.getElementById('singleTitle').innerText)">Copy Title</button>
+            </div>
+
+            <div class="result-section">
+                <h4>Description</h4>
+                <div id="singleDesc" class="editable" contenteditable="true">${data.description}</div>
+                <div id="singleDescCounter" class="pixelCounter"></div>
+                <button class="copyBtn" onclick="copyText(this, document.getElementById('singleDesc').innerText)">Copy Description</button>
+            </div>
+
+            <div class="result-section">
+                <h4>Keywords</h4>
+                <p class="keywords">${data.keywords}</p>
+            </div>
+        `;
+
+        const titleDiv = document.getElementById("singleTitle");
+        const descDiv = document.getElementById("singleDesc");
+
+        function updateSingleCounters() {
+            updatePixelCounter(titleDiv, "singleTitleCounter", titleLimit);
+            updatePixelCounter(descDiv, "singleDescCounter", descLimit);
+        }
+
+        titleDiv.addEventListener("input", updateSingleCounters);
+        descDiv.addEventListener("input", updateSingleCounters);
+        updateSingleCounters();
+
+        resultDiv.style.display = "block";
+    } catch (err) {
+        alert("Error generating");
+        console.error(err);
+    }
+
+    document.getElementById("loadingSingle").style.display = "none";
+}
+
+// ------------------------------ BATCH GENERATE ---------------------------
+async function generateAll() {
+    const topics = document.getElementById("topics").value
+        .split("\n").map(t => t.trim()).filter(t => t);
+
+    if (!topics.length) return alert("Please enter at least one topic");
+
+    const titleLimit = parseInt(document.getElementById("batchTitleLimit").value);
+    const descLimit = parseInt(document.getElementById("batchDescLimit").value);
+
+    const loading = document.getElementById("loadingBatch");
+    const allResultsDiv = document.getElementById("allResults");
+    allResultsDiv.innerHTML = "";
+    window.latestBatchResults = [];
+
+    loading.style.display = "block";
+
+    for (let i = 0; i < topics.length; i++) {
+        const topic = topics[i];
+        try {
+            const res = await fetch("/generate", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ topic, maxLength: 160 })
+            });
+
+            const data = await res.json();
+            window.latestBatchResults.push({ topic, ...data });
+
+            const card = document.createElement("div");
+            card.className = "card";
+            const cardId = i;
+
+            card.innerHTML = `
+                <h3>${topic}</h3>
+
+                <div class="result-section">
+                    <h4>Title</h4>
+                    <div id="batchTitle${cardId}" class="editable" contenteditable="true">${data.title}</div>
+                    <div id="batchTitleCounter${cardId}" class="pixelCounter"></div>
+                    <button class="copyBtn" onclick="copyText(this, document.getElementById('batchTitle${cardId}').innerText)">Copy Title</button>
+                </div>
+
+                <div class="result-section">
+                    <h4>Description</h4>
+                    <div id="batchDesc${cardId}" class="editable" contenteditable="true">${data.description}</div>
+                    <div id="batchDescCounter${cardId}" class="pixelCounter"></div>
+                    <button class="copyBtn" onclick="copyText(this, document.getElementById('batchDesc${cardId}').innerText)">Copy Description</button>
+                </div>
+
+                <div class="result-section">
+                    <h4>Keywords</h4>
+                    <p class="keywords">${data.keywords}</p>
+                </div>
+            `;
+
+            allResultsDiv.appendChild(card);
+
+            const titleDiv = document.getElementById(`batchTitle${cardId}`);
+            const descDiv = document.getElementById(`batchDesc${cardId}`);
+
+            function updateBatchCounters() {
+                updatePixelCounter(titleDiv, `batchTitleCounter${cardId}`, titleLimit);
+                updatePixelCounter(descDiv, `batchDescCounter${cardId}`, descLimit);
+            }
+
+            titleDiv.addEventListener("input", updateBatchCounters);
+            descDiv.addEventListener("input", updateBatchCounters);
+            updateBatchCounters();
+
+        } catch (err) {
+            console.error("Batch error:", err);
+        }
+    }
+
+    loading.style.display = "none";
+}
+
+// ----------------------------- CSV DOWNLOAD -----------------------------
+function downloadCSV() {
+    if (!window.latestBatchResults || window.latestBatchResults.length === 0) {
+        alert("No results to download");
+        return;
+    }
+
+    const headers = ["Topic","Title","Description","Keywords"];
+    const csvRows = [headers.join(",")];
+
+    window.latestBatchResults.forEach(row => {
+        const values = [
+            `"${row.topic.replace(/"/g,'""')}"`,
+            `"${row.title.replace(/"/g,'""')}"`,
+            `"${row.description.replace(/"/g,'""')}"`,
+            `"${row.keywords.replace(/"/g,'""')}"`
+        ];
+        csvRows.push(values.join(","));
+    });
+
+    const csvContent = csvRows.join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "seo_results.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+}
+</script>
+
+</div>
+</body>
+</html>
