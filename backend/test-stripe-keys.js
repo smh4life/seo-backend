@@ -18,7 +18,7 @@ const __dirname = dirname(__filename);
 // Load .env
 dotenv.config({ path: join(__dirname, ".env") });
 
-const secretKey = process.env.STRIPE_SECRET_KEY || "sk_test_51Sc9jdRxyl86VLbPHrB6O8UFYNFsxZnZLx76KzzkqBJqX3VAabfr6uQrZpEqdNFfTKPIN4ZJNX2u1pAYwIJIavXB00A0nFCxwr";
+const secretKey = process.env.STRIPE_SECRET_KEY;
 
 console.log("🔍 Testing Stripe Keys...\n");
 

@@ -15,11 +15,11 @@ const envPath = join(__dirname, ".env");
 console.log("🔧 Fixing .env file...\n");
 
 // The correct content
-const correctContent = `STRIPE_SECRET_KEY=sk_test_51Sc9jdRxyl86VLbPHrB6O8UFYNFsxZnZLx76KzzkqBJqX3VAabfr6uQrZpEqdNFfTKPIN4ZJNX2u1pAYwIJIavXB00A0nFCxwr
+const correctContent = `STRIPE_SECRET_KEY=YOUR_STRIPE_SECRET_KEY_HERE
 FRONTEND_URL=http://localhost:3001
-STRIPE_PRICE_ID_SINGLE=price_1SjTv4Rxyl86VLbP8ATY4rol
-STRIPE_PRICE_ID_BATCH=price_1SjU1RRxyl86VLbPV14SmISV
-STRIPE_PRICE_ID_PRO=price_1SjU3NRxyl86VLbPCD8IHJJB
+STRIPE_PRICE_ID_SINGLE=price_xxxxx
+STRIPE_PRICE_ID_BATCH=price_xxxxx
+STRIPE_PRICE_ID_PRO=price_xxxxx
 `;
 
 try {

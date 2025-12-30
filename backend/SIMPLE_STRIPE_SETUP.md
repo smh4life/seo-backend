@@ -9,7 +9,7 @@ Don't worry! I'll walk you through this one step at a time. 🚀
 3. Add these two lines:
 
 ```
-STRIPE_SECRET_KEY=sk_test_51Sc9jdRxyl86VLbPHrB6O8UFYNFsxZnZLx76KzzkqBJqX3VAabfr6uQrZpEqdNFfTKPIN4ZJNX2u1pAYwIJIavXB00A0nFCxwr
+STRIPE_SECRET_KEY=YOUR_STRIPE_SECRET_KEY_HERE
 FRONTEND_URL=http://localhost:3001
 ```
 
