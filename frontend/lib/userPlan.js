@@ -2,18 +2,21 @@ const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
 
 // Decode JWT token to get user plan and admin status
 export function getUserPlanFromToken() {
-  if (typeof window === "undefined") return null;
-  
-  const token = localStorage.getItem("token");
-  if (!token) return null;
+  if (typeof window === "undefined") return "free";
   
   try {
+    const token = localStorage.getItem("token");
+    if (!token) return "free";
+    
     // Decode JWT token (base64)
-    const payload = JSON.parse(atob(token.split(".")[1]));
+    const parts = token.split(".");
+    if (parts.length !== 3) return "free";
+    
+    const payload = JSON.parse(atob(parts[1]));
     return payload.plan || "free";
   } catch (e) {
-    console.error("Failed to decode token:", e);
-    return null;
+    // Silently fail and return free plan
+    return "free";
   }
 }
 
@@ -21,11 +24,14 @@ export function getUserPlanFromToken() {
 export function isAdmin() {
   if (typeof window === "undefined") return false;
   
-  const token = localStorage.getItem("token");
-  if (!token) return false;
-  
   try {
-    const payload = JSON.parse(atob(token.split(".")[1]));
+    const token = localStorage.getItem("token");
+    if (!token) return false;
+    
+    const parts = token.split(".");
+    if (parts.length !== 3) return false;
+    
+    const payload = JSON.parse(atob(parts[1]));
     return payload.isAdmin === true;
   } catch (e) {
     return false;

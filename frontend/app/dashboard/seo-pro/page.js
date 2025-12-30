@@ -16,15 +16,21 @@ export default function SeoProPage() {
   const router = useRouter();
   
   useEffect(() => {
-    const token = getToken();
-    if (!token) {
+    try {
+      const token = getToken();
+      if (!token) {
+        router.push("/login");
+        return;
+      }
+      
+      if (!hasPlanAccess("seoPro")) {
+        router.push("/dashboard/billing");
+        return;
+      }
+    } catch (error) {
+      console.error("SEO-Pro page error:", error);
+      // Don't crash - just redirect to login
       router.push("/login");
-      return;
-    }
-    
-    if (!hasPlanAccess("seoPro")) {
-      router.push("/dashboard/billing");
-      return;
     }
   }, [router]);
 

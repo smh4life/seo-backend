@@ -12,15 +12,21 @@ export default function BatchPage() {
   const router = useRouter();
   
   useEffect(() => {
-    const token = getToken();
-    if (!token) {
+    try {
+      const token = getToken();
+      if (!token) {
+        router.push("/login");
+        return;
+      }
+      
+      if (!hasPlanAccess("batch")) {
+        router.push("/dashboard/billing");
+        return;
+      }
+    } catch (error) {
+      console.error("Batch page error:", error);
+      // Don't crash - just redirect to login
       router.push("/login");
-      return;
-    }
-    
-    if (!hasPlanAccess("batch")) {
-      router.push("/dashboard/billing");
-      return;
     }
   }, [router]);
 

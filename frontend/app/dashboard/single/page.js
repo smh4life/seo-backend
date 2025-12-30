@@ -5,8 +5,10 @@ import { getToken } from "../../../lib/authClient";
 import Link from "next/link";
 import TrainingPanel from "../../../components/TrainingPanel";
 
+import { getApiBase } from "../../../lib/getApiBase";
+
 const STORAGE_KEY = "seo_generator_single_state";
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+const API_BASE = getApiBase();
 
 export default function SingleGeneratorPage() {
   // Initialize with empty state (server-side safe)
@@ -18,6 +20,7 @@ export default function SingleGeneratorPage() {
   const [freeUsageRemaining, setFreeUsageRemaining] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showTraining, setShowTraining] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
   
   // Check authentication and free usage on mount
   useEffect(() => {
@@ -47,11 +50,18 @@ export default function SingleGeneratorPage() {
       fetch(`${API_BASE}/usage/free`, {
         credentials: "include"
       })
-        .then(res => res.json())
+        .then(res => {
+          if (!res.ok) throw new Error("Failed to fetch");
+          return res.json();
+        })
         .then(data => {
           setFreeUsageRemaining(data.freeUsageRemaining);
         })
-        .catch(err => console.error("Failed to check free usage:", err));
+        .catch(err => {
+          console.error("Failed to check free usage:", err);
+          // Don't crash the page - just set to null
+          setFreeUsageRemaining(null);
+        });
     }
   }, []); // Only run once on mount
   
@@ -107,7 +117,6 @@ export default function SingleGeneratorPage() {
   const [titleCopied, setTitleCopied] = useState(false);
   const [descCopied, setDescCopied] = useState(false);
   const [keywordsCopied, setKeywordsCopied] = useState(false);
-  const [isGenerating, setIsGenerating] = useState(false);
   
   // Wrapped setter for isGenerating that also saves
   const updateIsGenerating = (value) => {

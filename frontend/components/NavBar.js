@@ -15,7 +15,7 @@ export default function NavBar() {
     // Check if user is logged in
     const token = getToken();
     setIsLoggedIn(!!token);
-  }, []);
+  }, [pathname]); // Update when pathname changes
 
   const handleLogout = () => {
     logoutUser();

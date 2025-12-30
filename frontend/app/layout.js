@@ -10,37 +10,17 @@ export default function RootLayout({ children }) {
   const isHomePage = pathname === "/";
   
   useEffect(() => {
-    // Force update favicon links with multiple sizes for better quality
+    // Only run once on mount - don't interfere with navigation
     const existingLinks = document.querySelectorAll('link[rel*="icon"]');
     existingLinks.forEach(link => link.remove());
 
-    // Add multiple favicon sizes - browsers will pick the best one
-    const timestamp = Date.now();
-    const faviconPath = `/favicon_io/Picture.png?t=${timestamp}`;
-    const sizes = [
-      { size: '512x512', href: faviconPath },
-      { size: '256x256', href: faviconPath },
-      { size: '128x128', href: faviconPath },
-      { size: '64x64', href: faviconPath },
-      { size: '32x32', href: faviconPath },
-      { size: '16x16', href: faviconPath }
-    ];
-
-    sizes.forEach(({ size, href }) => {
-      const link = document.createElement('link');
-      link.rel = 'icon';
-      link.type = 'image/png';
-      link.sizes = size;
-      link.href = href;
-      document.head.appendChild(link);
-    });
-
-    // Also add shortcut icon
-    const shortcut = document.createElement('link');
-    shortcut.rel = 'shortcut icon';
-    shortcut.href = faviconPath;
-    document.head.appendChild(shortcut);
-  }, []);
+    const faviconPath = `/favicon_io/Picture.png`;
+    const link = document.createElement('link');
+    link.rel = 'icon';
+    link.type = 'image/png';
+    link.href = faviconPath;
+    document.head.appendChild(link);
+  }, []); // Only run once
   
   return (
     <html lang="en">

@@ -12,10 +12,17 @@ export default function DashboardPage() {
   const router = useRouter();
 
   useEffect(() => {
-    const token = getToken();
-    setIsAuthenticated(!!token);
-    if (token) {
-      setUserPlan(getUserPlanFromToken());
+    try {
+      const token = getToken();
+      setIsAuthenticated(!!token);
+      if (token) {
+        setUserPlan(getUserPlanFromToken());
+      }
+    } catch (error) {
+      console.error("Dashboard error:", error);
+      // Don't crash - just set defaults
+      setIsAuthenticated(false);
+      setUserPlan("free");
     }
   }, []);
 
