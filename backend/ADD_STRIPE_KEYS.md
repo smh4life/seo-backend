@@ -4,7 +4,7 @@
 
 I found your Stripe Secret Key:
 ```
-sk_test_51Sc9jdRxyl86VLbPHrB6O8UFYNFsxZnZLx76KzzkqBJqX3VAabfr6uQrZpEqdNFfTKPIN4ZJNX2u1pAYwIJIavXB00A0nFCxwr
+YOUR_STRIPE_SECRET_KEY_HERE
 ```
 
 ## 📝 Add to Your `backend/.env` File
@@ -13,7 +13,7 @@ Add these lines to your `backend/.env` file:
 
 ```env
 # Stripe Configuration (from your stripe.txt file)
-STRIPE_SECRET_KEY=sk_test_51Sc9jdRxyl86VLbPHrB6O8UFYNFsxZnZLx76KzzkqBJqX3VAabfr6uQrZpEqdNFfTKPIN4ZJNX2u1pAYwIJIavXB00A0nFCxwr
+STRIPE_SECRET_KEY=YOUR_STRIPE_SECRET_KEY_HERE
 
 # You still need to add these:
 STRIPE_WEBHOOK_SECRET=whsec_xxxxx  # Get from Stripe Dashboard → Webhooks (NOT the secret key!)

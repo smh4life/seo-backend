@@ -25,7 +25,8 @@ console.log("🔍 Verifying Stripe Setup...\n");
 if (!secretKey) {
   console.error("❌ STRIPE_SECRET_KEY not found in .env");
   console.log("\n💡 Add this to your backend/.env file:");
-  console.log("STRIPE_SECRET_KEY=sk_test_51Sc9jdRxyl86VLbPHrB6O8UFYNFsxZnZLx76KzzkqBJqX3VAabfr6uQrZpEqdNFfTKPIN4ZJNX2u1pAYwIJIavXB00A0nFCxwr\n");
+  console.log("STRIPE_SECRET_KEY=YOUR_STRIPE_SECRET_KEY_HERE\n");
+  console.log("Get your key from: https://dashboard.stripe.com/apikeys\n");
   process.exit(1);
 }
 

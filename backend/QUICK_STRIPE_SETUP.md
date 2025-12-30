@@ -3,7 +3,7 @@
 ## ✅ What You Have
 
 You have:
-- **SK_test** (Secret Key) - `sk_test_51Sc9jdRxyl86VLbPHrB6O8UFYNFsxZnZLx76KzzkqBJqX3VAabfr6uQrZpEqdNFfTKPIN4ZJNX2u1pAYwIJIavXB00A0nFCxwr`
+- **SK_test** (Secret Key) - `YOUR_STRIPE_SECRET_KEY_HERE` (Get from Stripe Dashboard)
 - **PK_test** (Publishable Key) - Not needed for our setup (we use server-side checkout)
 
 ## 📝 Step 1: Add Secret Key to .env
@@ -11,7 +11,7 @@ You have:
 Add this to your `backend/.env` file:
 
 ```env
-STRIPE_SECRET_KEY=sk_test_51Sc9jdRxyl86VLbPHrB6O8UFYNFsxZnZLx76KzzkqBJqX3VAabfr6uQrZpEqdNFfTKPIN4ZJNX2u1pAYwIJIavXB00A0nFCxwr
+STRIPE_SECRET_KEY=YOUR_STRIPE_SECRET_KEY_HERE
 FRONTEND_URL=http://localhost:3001
 ```
 
