@@ -18,9 +18,17 @@ export default function GlobalError({ error, reset }) {
         <h1 style={{ fontSize: "24px", marginBottom: "16px" }}>
           Something went wrong
         </h1>
-        <p style={{ color: "#cbd5f5", marginBottom: "24px" }}>
-          {error?.message || "An error occurred"}
-        </p>
+      <p style={{ color: "#cbd5f5", marginBottom: "24px", whiteSpace: "pre-wrap", fontFamily: "monospace", fontSize: "12px", maxWidth: "800px" }}>
+        {error?.message || "An error occurred"}
+        {error?.stack && (
+          <details style={{ marginTop: "16px", textAlign: "left" }}>
+            <summary style={{ cursor: "pointer", color: "#60a5fa" }}>Stack Trace</summary>
+            <pre style={{ marginTop: "8px", color: "#9ca3af", fontSize: "10px", overflow: "auto" }}>
+              {error.stack}
+            </pre>
+          </details>
+        )}
+      </p>
         <button
           onClick={reset}
           style={{

@@ -3,41 +3,12 @@
 import { usePathname } from "next/navigation";
 import NavBar from "../components/NavBar";
 import Sidebar from "../components/Sidebar";
-import { useEffect } from "react";
 
 export default function RootLayout({ children }) {
   const pathname = usePathname();
   const isHomePage = pathname === "/";
   
-  useEffect(() => {
-    // Only run once on mount - don't interfere with navigation
-    try {
-      if (typeof document !== "undefined" && document.head) {
-        const existingLinks = document.querySelectorAll('link[rel*="icon"]');
-        existingLinks.forEach(link => {
-          try {
-            if (link && link.parentNode) {
-              link.remove();
-            }
-          } catch (e) {
-            // Ignore errors removing individual links
-          }
-        });
-
-        const faviconPath = `/favicon_io/Picture.png`;
-        const link = document.createElement('link');
-        link.rel = 'icon';
-        link.type = 'image/png';
-        link.href = faviconPath;
-        if (document.head) {
-          document.head.appendChild(link);
-        }
-      }
-    } catch (error) {
-      // Silently fail - favicon isn't critical
-      console.error("Favicon error:", error);
-    }
-  }, []); // Only run once
+  // Removed favicon manipulation - Next.js handles it automatically via <head> tags
   
   return (
     <html lang="en">
