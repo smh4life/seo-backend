@@ -11,15 +11,32 @@ export default function RootLayout({ children }) {
   
   useEffect(() => {
     // Only run once on mount - don't interfere with navigation
-    const existingLinks = document.querySelectorAll('link[rel*="icon"]');
-    existingLinks.forEach(link => link.remove());
+    try {
+      if (typeof document !== "undefined" && document.head) {
+        const existingLinks = document.querySelectorAll('link[rel*="icon"]');
+        existingLinks.forEach(link => {
+          try {
+            if (link && link.parentNode) {
+              link.remove();
+            }
+          } catch (e) {
+            // Ignore errors removing individual links
+          }
+        });
 
-    const faviconPath = `/favicon_io/Picture.png`;
-    const link = document.createElement('link');
-    link.rel = 'icon';
-    link.type = 'image/png';
-    link.href = faviconPath;
-    document.head.appendChild(link);
+        const faviconPath = `/favicon_io/Picture.png`;
+        const link = document.createElement('link');
+        link.rel = 'icon';
+        link.type = 'image/png';
+        link.href = faviconPath;
+        if (document.head) {
+          document.head.appendChild(link);
+        }
+      }
+    } catch (error) {
+      // Silently fail - favicon isn't critical
+      console.error("Favicon error:", error);
+    }
   }, []); // Only run once
   
   return (
