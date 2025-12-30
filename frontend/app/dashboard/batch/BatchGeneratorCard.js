@@ -403,7 +403,9 @@ export default function BatchGeneratorCard() {
               a.download = `seo-batch-${new Date().getTime()}.csv`;
               document.body.appendChild(a);
               a.click();
-              document.body.removeChild(a);
+              if (a && a.parentNode) {
+                document.body.removeChild(a);
+              }
               window.URL.revokeObjectURL(url);
             }}
             style={{

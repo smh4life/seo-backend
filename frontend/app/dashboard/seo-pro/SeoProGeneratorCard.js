@@ -439,7 +439,9 @@ const SeoProGeneratorCard = forwardRef(function SeoProGeneratorCard(props, ref) 
     link.style.visibility = "hidden";
     document.body.appendChild(link);
     link.click();
-    document.body.removeChild(link);
+          if (link && link.parentNode) {
+            document.body.removeChild(link);
+          }
   };
 
   // Reset everything
