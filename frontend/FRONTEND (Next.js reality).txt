@@ -1,0 +1,23 @@
+frontend/
+├── app/                   ← folder (Next.js magic)
+│   ├── layout.js          ← real file
+│   ├── page.js            ← real file (landing)
+│   │
+│   ├── dashboard/         ← folder
+│   │   ├── page.js        ← real file
+│   │   ├── single/        ← folder
+│   │   │   └── page.js    ← real file
+│   │   ├── batch/
+│   │   │   └── page.js
+│   │   └── seo-pro/
+│   │       └── page.js
+│
+├── components/            ← folder
+│   ├── NavBar.js          ← real file
+│   ├── Sidebar.js         ← real file
+│   ├── UsageMeter.js      ← real file
+│   └── TrainingPanel.js  ← real file
+│
+└── lib/                   ← folder
+    ├── api.js             ← real file
+    └── auth.js            ← real file

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script>
+// This will be run in browser to create the favicon
+const canvas = document.createElement('canvas');
+canvas.width = 256;
+canvas.height = 256;
+const ctx = canvas.getContext('2d');
+
+// White background
+ctx.fillStyle = '#FFFFFF';
+ctx.fillRect(0, 0, 256, 256);
+
+// Large dark robot
+ctx.fillStyle = '#1a1a1a';
+// Head
+ctx.fillRect(68, 58, 120, 90);
+ctx.beginPath();
+ctx.roundRect(68, 58, 120, 90, 12);
+ctx.fill();
+
+// Antenna
+ctx.beginPath();
+ctx.arc(128, 48, 6, 0, Math.PI * 2);
+ctx.fill();
+ctx.fillStyle = '#60a5fa';
+ctx.beginPath();
+ctx.arc(128, 40, 3, 0, Math.PI * 2);
+ctx.fill();
+
+// Eyes
+ctx.fillStyle = '#60a5fa';
+ctx.beginPath();
+ctx.arc(103, 88, 12, 0, Math.PI * 2);
+ctx.fill();
+ctx.beginPath();
+ctx.arc(153, 88, 12, 0, Math.PI * 2);
+ctx.fill();
+
+// Body
+ctx.fillStyle = '#1a1a1a';
+ctx.fillRect(78, 148, 100, 80);
+ctx.beginPath();
+ctx.roundRect(78, 148, 100, 80, 10);
+ctx.fill();
+
+// Arms
+ctx.fillRect(48, 158, 30, 60);
+ctx.fillRect(178, 158, 30, 60);
+
+// Convert to data URL and download
+const dataURL = canvas.toDataURL('image/png');
+console.log('Favicon created:', dataURL.substring(0, 50) + '...');
+</script>
+</head>
+<body>Open browser console to see result</body>
+</html>

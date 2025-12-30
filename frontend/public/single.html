@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Single Generator | MySCOGenerator</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: "Inter", Arial, sans-serif;
+  background: url("ai-wave.jpg") no-repeat center center/cover;
+  color: #f5f5f5;
+}
+
+/* ===================== HEADER ===================== */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 70px;
+  padding: 0 40px;
+  background: rgba(25,20,40,0.95);
+  border-bottom: 1px solid #2b2d33;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 0 25px rgba(0,153,255,0.25);
+  animation: headerGlow 6s ease-in-out infinite alternate;
+}
+@keyframes headerGlow {
+  0% { box-shadow: 0 0 20px rgba(0,153,255,0.25); }
+  50% { box-shadow: 0 0 40px rgba(0,180,255,0.55); }
+  100% { box-shadow: 0 0 25px rgba(0,153,255,0.25); }
+}
+
+
+
+
+
+header img { height: 50px; filter: drop-shadow(0 0 14px rgba(255,255,255,0.7)); }
+header h1 { color:white; margin-left:18px; }
+nav a { color:#f5f5f5; margin-left:30px; text-decoration:none; }
+nav a:hover { color:#69b7ff; }
+
+.card {
+  background: rgba(40,42,55,0.7);
+  border-radius: 14px;
+  padding: 40px;
+  max-width: 900px;
+  width: 90%;
+  margin: 80px auto;
+  box-shadow: 0 0 25px rgba(100,180,255,0.25);
+  backdrop-filter: blur(10px);
+}
+
+label { font-weight:600; color:#69b7ff; }
+input, textarea {
+  width:100%;
+  padding:14px;
+  border-radius:8px;
+  background:rgba(20,20,30,0.95);
+  border:1px solid rgba(100,180,255,0.4);
+  color:white;
+  margin:6px 0 20px;
+}
+textarea { height:120px; resize:none; }
+
+.pixel-row {
+  display:flex;
+  justify-content:center;
+  gap:30px;
+  margin:20px 0;
+}
+.pixel-box label { text-align:center; margin-bottom:6px; font-weight:600; color:#69b7ff; }
+.pixel-box input {
+  width:160px;
+  text-align:center;
+  padding:10px;
+  border-radius:8px;
+  border:1px solid rgba(100,180,255,0.4);
+  background:rgba(20,20,30,0.95);
+  color:white;
+}
+
+.resultRow {
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+.result-field {
+  flex:1;
+  padding:14px;
+  background:rgba(20,20,30,0.9);
+  border-radius:8px;
+  border:1px solid rgba(100,180,255,0.4);
+  min-height:50px;
+  color:white;
+}
+
+.pixel-counter {
+  width:70px;
+  text-align:right;
+  font-size:14px;
+  color:#ccc;
+}
+
+.over-limit {
+  border:2px solid red !important;
+  box-shadow:0 0 10px red;
+}
+
+button {
+  width:100%;
+  padding:16px;
+  margin-top:10px;
+  border:none;
+  border-radius:10px;
+  font-size:1.1rem;
+  font-weight:600;
+  cursor:pointer;
+  background:#69b7ff;
+}
+button:hover { background:#8ccaff; }
+
+.copyBtn { 
+  background:#4cd964; 
+  margin-top:6px; 
+  transition:0.25s;
+}
+.copyBtn.copied {
+  background:#2fa74d !important;
+  color:#fff !important;
+  transform:scale(0.97);
+}
+
+.snippet {
+  display:none;
+  margin-top:15px;
+  padding:15px;
+  background:rgba(10,10,15,0.9);
+  border-radius:10px;
+  border:1px solid rgba(100,180,255,0.3);
+}
+.snippet-title { color:#69b7ff; font-size:18px; }
+.snippet-url { color:#6cf; font-size:12px; }
+
+/* ===================== FOOTER ===================== */
+footer {
+  background: rgba(17,18,23,0.95);
+  color: #bbb;
+  text-align: center;
+  padding: 30px;
+  border-top: 1px solid #2b2d33;
+  font-size: 0.9rem;
+  box-shadow: 0 0 20px rgba(0,153,255,0.25);
+  animation: footerGlow 6s ease-in-out infinite alternate;
+}
+@keyframes footerGlow {
+  0% { box-shadow: 0 0 20px rgba(0,153,255,0.25); }
+  50% { box-shadow: 0 0 40px rgba(0,180,255,0.55); }
+  100% { box-shadow: 0 0 25px rgba(0,153,255,0.25); }
+}
+
+
+
+
+
+
+
+</style>
+</head>
+
+<body>
+
+<header>
+  <div style="display:flex;align-items:center;">
+    <img src="logo.png" />
+    <h1>MySCOGenerator</h1>
+  </div>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="single.html">Single</a>
+    <a href="batch.html">Batch</a>
+    <a href="about.html">About</a>
+  </nav>
+</header>
+
+<div class="card">
+  <h2 style="color:#69b7ff;text-align:center;">Single Topic Generator</h2>
+
+  <label>Topic:</label>
+  <input id="topicInput" placeholder="Enter Topic" />
+
+  <label>Optional Description:</label>
+  <textarea id="optionalDesc" placeholder="(Optional) Add more details..."></textarea>
+
+  <div class="pixel-row">
+    <div class="pixel-box">
+      <label>Title Px</label>
+      <input type="number" id="titleLimit" value="580" />
+    </div>
+
+    <div class="pixel-box">
+      <label>Description Px</label>
+      <input type="number" id="descLimit" value="990" />
+    </div>
+  </div>
+
+  <button onclick="generate()">Generate</button>
+  <button onclick="resetSingle()">Reset</button>
+
+  <div id="results" style="display:none;"></div>
+</div>
+
+<script>
+const API = "https://seo-backend-51av.onrender.com/generate";
+
+function px(t){
+  const c=document.createElement("canvas");
+  const x=c.getContext("2d");
+  x.font="16px Inter";
+  return Math.round(x.measureText(t).width);
+}
+
+function optimizeTitle(t, limit) {
+  let out = t.trim();
+
+  while(px(out) > limit && out.includes(" "))
+    out = out.replace(/\s+\S+$/, "").trim();
+
+  while(px(out) > limit)
+    out = out.slice(0, -1);
+
+  const adds=[
+    "durable build","premium materials","ergonomic profile",
+    "modern fit","everyday performance","lightweight design",
+    "refined detailing","versatile use"
+  ];
+  for(const a of adds){
+    const test = out+" "+a;
+    if(px(test) < limit - 6) out = test;
+  }
+
+  while(px(out) > limit - 6)
+    out = out.slice(0, -1);
+
+  return out.trim();
+}
+
+function trimDesc(t, l){
+  let out = t.trim();
+
+  while(px(out) > l && out.includes(" "))
+    out = out.replace(/\s+\S+$/, "").trim();
+
+  out = out.replace(/,\s*$/, "");
+  out = out.replace(/and\s*\.?$/, "");
+
+  out = out.replace(/,?\s*\.$/, ".");
+
+  if(!/[.!?]$/.test(out)) out += ".";
+
+  return out.trim();
+}
+
+function attachCounter(el,counter,limit){
+  function update(){
+    const w = px(el.innerText.trim());
+    counter.innerText = w+"px";
+    counter.style.color = w>limit ? "red" : "#ccc";
+    if(w>limit) el.classList.add("over-limit");
+    else el.classList.remove("over-limit");
+  }
+  el.addEventListener("input",update);
+  update();
+}
+
+function copyWithFeedback(btn,id){
+  navigator.clipboard.writeText(
+    document.getElementById(id).innerText.trim()
+  );
+  btn.classList.add("copied");
+  btn.innerText="Copied!";
+  setTimeout(()=>{
+    btn.classList.remove("copied");
+    btn.innerText="Copy";
+  },800);
+}
+
+async function generate(){
+  const topic = topicInput.value.trim();
+  const extra = optionalDesc.value.trim();
+  if(!topic) return alert("Enter topic first");
+
+  const titleLimitNum = parseInt(titleLimit.value);
+  const descLimitNum  = parseInt(descLimit.value);
+
+  const fullTopic = extra ? topic + ". " + extra : topic;
+
+  const r = await fetch(API,{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({ topic: fullTopic, maxLength: descLimitNum })
+  });
+  const data = await r.json();
+
+  const title = optimizeTitle(data.title,titleLimitNum);
+  const desc  = trimDesc(data.description,descLimitNum);
+  const keys  = data.keywords || "";
+
+  const results=document.getElementById("results");
+  results.style.display="block";
+
+  const idT="t_"+Math.random().toString(36).slice(2);
+  const idD="d_"+Math.random().toString(36).slice(2);
+  const idK="k_"+Math.random().toString(36).slice(2);
+  const sid="s_"+Math.random().toString(36).slice(2);
+
+  results.innerHTML = `
+    <label>Title</label>
+    <div class="resultRow">
+      <div class="result-field" id="${idT}" contenteditable="true">${title}</div>
+      <div class="pixel-counter" id="${idT}_px"></div>
+    </div>
+    <button class="copyBtn" onclick="copyWithFeedback(this,'${idT}')">Copy</button>
+
+    <label>Description</label>
+    <div class="resultRow">
+      <div class="result-field" id="${idD}" contenteditable="true">${desc}</div>
+      <div class="pixel-counter" id="${idD}_px"></div>
+    </div>
+    <button class="copyBtn" onclick="copyWithFeedback(this,'${idD}')">Copy</button>
+
+    <label>Keywords</label>
+    <div class="resultRow">
+      <div class="result-field" id="${idK}" contenteditable="true">${keys}</div>
+    </div>
+    <button class="copyBtn" onclick="copyWithFeedback(this,'${idK}')">Copy</button>
+
+    <button class="copyBtn" onclick="toggle('${sid}')">Preview Snippet</button>
+    <div class="snippet" id="${sid}">
+      <div class="snippet-title">${title}</div>
+      <div class="snippet-url">www.example.com/${topic.replace(/\s+/g,"-")}</div>
+      <div class="snippet-description">${desc}</div>
+    </div>
+  `;
+
+  attachCounter(document.getElementById(idT),document.getElementById(idT+"_px"),titleLimitNum);
+  attachCounter(document.getElementById(idD),document.getElementById(idD+"_px"),descLimitNum);
+}
+
+function resetSingle(){
+  topicInput.value="";
+  optionalDesc.value="";
+  results.style.display="none";
+  results.innerHTML="";
+}
+
+function toggle(id){
+  const el=document.getElementById(id);
+  el.style.display = el.style.display==="none" ? "block" : "none";
+}
+
+</script>
+
+<footer>
+    © 2025 MySCOGenerator — Built for better SEO automation.
+    </footer>
+
+
+
+
+</body>
+</html>

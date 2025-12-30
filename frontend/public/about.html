@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>About | MySCOGenerator</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: "Inter", Arial, sans-serif;
+  background: url("ai-wave.jpg") no-repeat center center/cover;
+  color: #f5f5f5;
+}
+
+/* ===================== HEADER ===================== */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 70px;
+  padding: 0 40px;
+  background: rgba(25,20,40,0.95);
+  border-bottom: 1px solid #2b2d33;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 0 25px rgba(0,153,255,0.25);
+  animation: headerGlow 6s ease-in-out infinite alternate;
+}
+@keyframes headerGlow {
+  0% { box-shadow: 0 0 20px rgba(0,153,255,0.25); }
+  50% { box-shadow: 0 0 40px rgba(0,180,255,0.55); }
+  100% { box-shadow: 0 0 25px rgba(0,153,255,0.25); }
+}
+
+header img {
+  height: 50px;
+  transform: scale(1.25);
+  filter: drop-shadow(0 0 14px rgba(255,255,255,0.7));
+}
+header h1 {
+  color: white;
+  font-size: 1.6rem;
+  margin-left: 18px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-shadow: 0 0 10px rgba(255,255,255,0.8);
+}
+
+nav a {
+  color: #f5f5f5;
+  margin-left: 30px;
+  text-decoration: none;
+  font-weight: 500;
+}
+nav a:hover { color: #4cc9ff; }
+
+/* ===================== ABOUT SECTION ===================== */
+.about-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 120px 20px;
+}
+
+.about-box {
+  max-width: 900px;
+  width: 100%;
+  background: rgba(30,30,40,0.75);
+  border-radius: 16px;
+  padding: 40px 50px;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 0 40px rgba(0,153,255,0.3);
+  border: 1px solid rgba(0,153,255,0.35);
+  animation: boxGlow 8s ease-in-out infinite alternate;
+  text-align: center;
+}
+@keyframes boxGlow {
+  0%   { box-shadow: 0 0 25px rgba(0,153,255,0.25); }
+  50%  { box-shadow: 0 0 45px rgba(0,180,255,0.55); }
+  100% { box-shadow: 0 0 25px rgba(0,153,255,0.25); }
+}
+
+.about-box h2 {
+  color: #4cc9ff;
+  margin-bottom: 20px;
+  font-size: 2rem;
+  text-shadow: 0 0 10px rgba(0,153,255,0.55);
+}
+
+.about-box p {
+  font-size: 1.05rem;
+  line-height: 1.6;
+  opacity: 0.95;
+  margin-bottom: 20px;
+}
+
+/* ===================== FOOTER ===================== */
+footer {
+  background: rgba(17,18,23,0.95);
+  color: #bbb;
+  text-align: center;
+  padding: 30px;
+  border-top: 1px solid #2b2d33;
+  font-size: 0.9rem;
+  box-shadow: 0 0 20px rgba(0,153,255,0.25);
+  animation: footerGlow 6s ease-in-out infinite alternate;
+}
+@keyframes footerGlow {
+  0% { box-shadow: 0 0 20px rgba(0,153,255,0.25); }
+  50% { box-shadow: 0 0 40px rgba(0,180,255,0.55); }
+  100% { box-shadow: 0 0 25px rgba(0,153,255,0.25); }
+}
+</style>
+
+</head>
+
+<body>
+
+<header>
+  <div style="display:flex;align-items:center;">
+    <img src="logo.png" alt="Logo" />
+    <h1>MySCOGenerator</h1>
+  </div>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="single.html">Single</a>
+    <a href="batch.html">Batch</a>
+    <a href="contact.html">Contact</a>
+
+  </nav>
+</header>
+
+<section class="about-container">
+  <div class="about-box">
+    <h2>Who We Are</h2>
+
+    <p>
+      MySCOGenerator was built to give creators, entrepreneurs, and 
+      businesses a fast, modern way to generate perfect SEO metadata 
+      in seconds.
+    </p>
+
+    <p>
+      From single-topic titles to full batch processing, everything 
+      is designed to remove stress, save time, and supercharge your 
+      workflow.
+    </p>
+
+    <p>
+      Our mission is simple:<br>
+      <strong>Make SEO automation beautiful, powerful, and effortless.</strong>
+    </p>
+  </div>
+</section>
+
+<footer>
+  © 2025 MySCOGenerator — Built for better SEO automation.
+</footer>
+
+</body>
+</html>
