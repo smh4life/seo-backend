@@ -102,8 +102,15 @@ const SeoProGeneratorCard = forwardRef(function SeoProGeneratorCard(props, ref) 
   // Load distributors from API
   const loadDistributors = async () => {
     try {
+      const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+      const headers = {};
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+      
       const res = await fetch(`${API_BASE}/distributors`, {
-        credentials: "include"
+        credentials: "include",
+        headers
       });
       if (res.ok) {
         const data = await res.json();
@@ -111,6 +118,8 @@ const SeoProGeneratorCard = forwardRef(function SeoProGeneratorCard(props, ref) 
         if (data.length > 0 && !selectedDistributor) {
           setSelectedDistributor(data[0].id);
         }
+      } else {
+        console.error("Failed to load distributors:", res.status);
       }
     } catch (e) {
       console.error("Failed to load distributors:", e);
