@@ -2,12 +2,22 @@
 
 import { useState, useEffect } from "react";
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+
 export default function CategoryAssigner({ csvData, onCategoriesAssigned, onClose }) {
   const [selectedRows, setSelectedRows] = useState(new Set());
   const [categoryMap, setCategoryMap] = useState({}); // row index -> category path
+  const [suggestions, setSuggestions] = useState({}); // row index -> suggested category
   const [bulkCategory, setBulkCategory] = useState("");
   const [imageColumn, setImageColumn] = useState("");
   const [categoryColumn, setCategoryColumn] = useState("");
+  const [isMatching, setIsMatching] = useState(false);
+  const [userCategories, setUserCategories] = useState([]);
+
+  // Load user categories and auto-match on mount
+  useEffect(() => {
+    loadCategories();
+  }, []);
 
   // Auto-detect image and category columns
   useEffect(() => {
@@ -29,6 +39,89 @@ export default function CategoryAssigner({ csvData, onCategoriesAssigned, onClos
       }
     }
   }, [csvData]);
+
+  // Auto-match when categories and CSV are ready
+  useEffect(() => {
+    if (userCategories.length > 0 && csvData?.rows?.length > 0 && categoryColumn) {
+      autoMatchCategories();
+    }
+  }, [userCategories, csvData, categoryColumn]);
+
+  // Load user categories
+  const loadCategories = async () => {
+    try {
+      const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+      const headers = {};
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+      
+      const res = await fetch(`${API_BASE}/categories`, {
+        credentials: "include",
+        headers
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setUserCategories(data);
+      }
+    } catch (e) {
+      console.error("Failed to load categories:", e);
+    }
+  };
+
+  // Auto-match products to categories
+  const autoMatchCategories = async () => {
+    if (!csvData?.rows || csvData.rows.length === 0) return;
+    
+    setIsMatching(true);
+    try {
+      const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+      const headers = {
+        "Content-Type": "application/json"
+      };
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+
+      // Prepare products for matching
+      const products = csvData.rows.map((row, index) => ({
+        index,
+        distributorCategory: categoryColumn ? row[categoryColumn] : "",
+        productName: row.title || row.name || row["Product Name"] || "",
+        description: row.description || row["Item Description"] || ""
+      }));
+
+      const res = await fetch(`${API_BASE}/categories/match`, {
+        method: "POST",
+        headers,
+        credentials: "include",
+        body: JSON.stringify({ products })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        const newSuggestions = {};
+        const newCategoryMap = {};
+        
+        data.matches.forEach(match => {
+          if (match.suggestedCategory && match.confidence > 50) {
+            newSuggestions[match.productIndex] = match.suggestedCategory;
+            // Auto-assign if confidence is high
+            if (match.confidence > 80) {
+              newCategoryMap[match.productIndex] = match.suggestedCategory;
+            }
+          }
+        });
+        
+        setSuggestions(newSuggestions);
+        setCategoryMap(newCategoryMap);
+      }
+    } catch (e) {
+      console.error("Auto-match error:", e);
+    } finally {
+      setIsMatching(false);
+    }
+  };
 
   const toggleRow = (index) => {
     const newSelected = new Set(selectedRows);
@@ -125,9 +218,26 @@ export default function CategoryAssigner({ csvData, onCategoriesAssigned, onClos
           alignItems: "center",
           marginBottom: "24px"
         }}>
-          <h2 style={{ color: "#ffffff", margin: 0 }}>
-            Assign Categories ({csvData?.rows?.length || 0} products)
-          </h2>
+          <div>
+            <h2 style={{ color: "#ffffff", margin: 0 }}>
+              Assign Categories ({csvData?.rows?.length || 0} products)
+            </h2>
+            {isMatching && (
+              <div style={{ color: "#60a5fa", fontSize: "12px", marginTop: "4px" }}>
+                Auto-matching categories...
+              </div>
+            )}
+            {userCategories.length > 0 && !isMatching && (
+              <div style={{ color: "#94a3b8", fontSize: "12px", marginTop: "4px" }}>
+                {userCategories.length} categories loaded • {Object.keys(suggestions).length} suggestions
+              </div>
+            )}
+            {userCategories.length === 0 && (
+              <div style={{ color: "#fbbf24", fontSize: "12px", marginTop: "4px" }}>
+                No categories imported. Import categories for auto-matching.
+              </div>
+            )}
+          </div>
           <button
             onClick={onClose}
             style={{
@@ -328,23 +438,49 @@ export default function CategoryAssigner({ csvData, onCategoriesAssigned, onClos
                   Distributor: {distributorCat}
                 </div>
 
-                {/* Category Input */}
-                <input
-                  type="text"
-                  value={assignedCat}
-                  onChange={(e) => assignSingleCategory(index, e.target.value)}
-                  onClick={(e) => e.stopPropagation()}
-                  placeholder="Your category path"
-                  style={{
-                    width: "100%",
-                    padding: "6px",
-                    background: "#0f172a",
-                    border: "1px solid #334155",
-                    color: "#fff",
-                    borderRadius: "4px",
-                    fontSize: "11px"
-                  }}
-                />
+                {/* Category Input with Suggestions */}
+                <div style={{ position: "relative" }}>
+                  <input
+                    type="text"
+                    value={assignedCat}
+                    onChange={(e) => assignSingleCategory(index, e.target.value)}
+                    onClick={(e) => e.stopPropagation()}
+                    placeholder={suggestions[index] ? `Suggested: ${suggestions[index]}` : "Your category path"}
+                    style={{
+                      width: "100%",
+                      padding: "6px",
+                      background: suggestions[index] && !assignedCat ? "#1e3a8a" : "#0f172a",
+                      border: suggestions[index] && !assignedCat ? "1px solid #4dabff" : "1px solid #334155",
+                      color: "#fff",
+                      borderRadius: "4px",
+                      fontSize: "11px"
+                    }}
+                  />
+                  {suggestions[index] && !assignedCat && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        assignSingleCategory(index, suggestions[index]);
+                      }}
+                      style={{
+                        position: "absolute",
+                        right: "4px",
+                        top: "50%",
+                        transform: "translateY(-50%)",
+                        padding: "2px 6px",
+                        background: "#4dabff",
+                        color: "#020617",
+                        border: "none",
+                        borderRadius: "3px",
+                        fontSize: "9px",
+                        cursor: "pointer",
+                        fontWeight: "600"
+                      }}
+                    >
+                      Use
+                    </button>
+                  )}
+                </div>
               </div>
             );
           })}

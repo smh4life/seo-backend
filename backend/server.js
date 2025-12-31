@@ -10,6 +10,7 @@ import usageRoutes from "./routes/usage.js";
 import billingRoutes from "./routes/billing.js";
 import distributorRoutes from "./routes/distributors.js";
 import templateRoutes from "./routes/templates.js";
+import categoryRoutes from "./routes/categories.js";
 import adminRoutes from "./routes/admin.js";
 import { connectMongo } from "./config/mongo.js";
 
@@ -48,6 +49,7 @@ app.use("/usage", usageRoutes);
 app.use("/billing", billingRoutes);
 app.use("/distributors", distributorRoutes);
 app.use("/templates", templateRoutes);
+app.use("/categories", categoryRoutes);
 app.use("/admin", adminRoutes);
 
 const PORT = process.env.PORT || 3000;

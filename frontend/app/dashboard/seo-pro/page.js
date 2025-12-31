@@ -6,6 +6,7 @@ import { getToken } from "../../../lib/authClient";
 import { hasPlanAccess } from "../../../lib/userPlan";
 import DistributorCard from "./DistributorCard";
 import TemplateCard from "./TemplateCard";
+import CategoryManager from "./CategoryManager";
 import SeoProGeneratorCard from "./SeoProGeneratorCard";
 import TrainingPanel from "../../../components/TrainingPanel";
 
@@ -148,6 +149,7 @@ export default function SeoProPage() {
         }}>
           <DistributorCard onDistributorAdded={handleDistributorAdded} />
           <TemplateCard />
+          <CategoryManager />
         </div>
       )}
     </div>
