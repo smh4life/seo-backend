@@ -592,12 +592,21 @@ export default function CategoryMatcherTest() {
         matchedData.headers.join(","),
         ...matchedData.rows.map(row => {
           return matchedData.headers.map(header => {
-            const value = row[header] || "";
+            // Get value and ensure it's a string
+            let value = row[header];
+            
+            // Handle null, undefined, or non-string values
+            if (value === null || value === undefined) {
+              value = "";
+            } else {
+              value = String(value);
+            }
+            
             // Properly escape CSV values
             if (value.includes(",") || value.includes('"') || value.includes("\n") || value.includes("\r")) {
-              return `"${String(value).replace(/"/g, '""')}"`;
+              return `"${value.replace(/"/g, '""')}"`;
             }
-            return String(value);
+            return value;
           }).join(",");
         })
       ];
