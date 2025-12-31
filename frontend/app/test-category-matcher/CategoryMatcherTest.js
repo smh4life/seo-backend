@@ -540,14 +540,24 @@ export default function CategoryMatcherTest() {
         };
       });
 
-      // Add categories to CSV data
+      // Add categories to CSV data and replace Category column with matched categoryPath
+      const categoryColumnName = csvData.headers.find(h => /^category$/i.test(h));
+      
       const updatedRows = csvData.rows.map((row, index) => {
         const match = matches.find(m => m.productIndex === index);
-        return {
+        const newRow = {
           ...row,
           categoryPath: match?.suggestedCategory || "",
           matchConfidence: match?.confidence || 0
         };
+        
+        // Replace the distributor's "Category" column with the matched categoryPath
+        // This ensures imports use your categories instead of distributor categories
+        if (categoryColumnName) {
+          newRow[categoryColumnName] = match?.suggestedCategory || "";
+        }
+        
+        return newRow;
       });
 
       const updatedHeaders = csvData.headers.includes("categoryPath")
