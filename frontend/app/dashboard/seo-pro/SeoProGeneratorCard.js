@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, forwardRef, useImperativeHandle } from "react";
 import { apiPost } from "../../../lib/api";
+import CategoryAssigner from "./CategoryAssigner";
 
 const STORAGE_KEY = "seo_pro_generator_state";
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
@@ -15,6 +16,7 @@ const SeoProGeneratorCard = forwardRef(function SeoProGeneratorCard(props, ref) 
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState(null);
   const [progress, setProgress] = useState({ current: 0, total: 0 });
+  const [showCategoryAssigner, setShowCategoryAssigner] = useState(false);
   const fileInputRef = useRef(null);
   const generateButtonRef = useRef(null);
   const resetButtonRef = useRef(null);
@@ -227,6 +229,8 @@ const SeoProGeneratorCard = forwardRef(function SeoProGeneratorCard(props, ref) 
       stateRef.current.csvData = parsedData;
       // Save CSV data to localStorage so we can resume if needed
       saveState({ csvData: parsedData });
+      // Show category assigner after CSV is loaded
+      setShowCategoryAssigner(true);
     } catch (e) {
       console.error("[CSV Parse] Error:", e);
       setError("Unable to read CSV file. Please check the file format and try again.");
@@ -591,6 +595,14 @@ const SeoProGeneratorCard = forwardRef(function SeoProGeneratorCard(props, ref) 
     }, 100);
   };
 
+  // Handle category assignment
+  const handleCategoriesAssigned = (updatedData) => {
+    setCsvData(updatedData);
+    stateRef.current.csvData = updatedData;
+    saveState({ csvData: updatedData });
+    setShowCategoryAssigner(false);
+  };
+
   // Reset everything
   const reset = () => {
     setCsvFile(null);
@@ -599,6 +611,7 @@ const SeoProGeneratorCard = forwardRef(function SeoProGeneratorCard(props, ref) 
     setError(null);
     setProgress({ current: 0, total: 0 });
     setIsGenerating(false);
+    setShowCategoryAssigner(false);
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -606,16 +619,24 @@ const SeoProGeneratorCard = forwardRef(function SeoProGeneratorCard(props, ref) 
   };
 
   return (
-    <div style={{ 
-      maxWidth: "1200px",
-      margin: "0 auto",
-      backgroundImage: "url('/ai-wave.jpg')",
-      backgroundSize: "cover",
-      backgroundPosition: "center",
-      backgroundRepeat: "no-repeat",
-      minHeight: "100vh",
-      padding: "20px"
-    }}>
+    <>
+      {showCategoryAssigner && csvData && (
+        <CategoryAssigner
+          csvData={csvData}
+          onCategoriesAssigned={handleCategoriesAssigned}
+          onClose={() => setShowCategoryAssigner(false)}
+        />
+      )}
+      <div style={{ 
+        maxWidth: "1200px",
+        margin: "0 auto",
+        backgroundImage: "url('/ai-wave.jpg')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+        minHeight: "100vh",
+        padding: "20px"
+      }}>
       <style>{`
         @keyframes spin {
           from { transform: rotate(0deg); }
@@ -877,7 +898,8 @@ const SeoProGeneratorCard = forwardRef(function SeoProGeneratorCard(props, ref) 
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </>
   );
 });
 
