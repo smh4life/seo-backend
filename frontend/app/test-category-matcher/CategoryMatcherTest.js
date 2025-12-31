@@ -37,23 +37,103 @@ export default function CategoryMatcherTest() {
             throw new Error("CSV must have at least a header and one row");
           }
 
-          const headers = lines[0].split(",").map(h => h.trim().replace(/^"|"$/g, ""));
-          const pathIndex = headers.findIndex(h => /path|category/i.test(h));
+          const parseLine = (line) => {
+            const result = [];
+            let current = "";
+            let inQuotes = false;
+            
+            for (let i = 0; i < line.length; i++) {
+              const char = line[i];
+              if (char === '"') {
+                inQuotes = !inQuotes;
+              } else if (char === ',' && !inQuotes) {
+                result.push(current.trim());
+                current = "";
+              } else {
+                current += char;
+              }
+            }
+            result.push(current.trim());
+            return result;
+          };
+
+          const headers = parseLine(lines[0]).map(h => h.replace(/^"|"$/g, ""));
+          
+          // Try to find columns - support multiple formats
+          const nameIndex = headers.findIndex(h => /^name$/i.test(h));
+          const pathIndex = headers.findIndex(h => /^(path|urlSlug|url-slug)$/i.test(h));
           const keywordsIndex = headers.findIndex(h => /keyword/i.test(h));
-          const parentIndex = headers.findIndex(h => /parent/i.test(h));
+          const parentIndex = headers.findIndex(h => /^(parentCategory|parent-category|parent)$/i.test(h));
+          const descriptionIndex = headers.findIndex(h => /^description$/i.test(h));
 
-          if (pathIndex === -1) {
-            throw new Error("CSV must have a 'path' or 'category' column");
-          }
+          // Build category map for path construction
+          const categoryMap = new Map();
+          const allRows = lines.slice(1).map(line => {
+            const values = parseLine(line).map(v => v.replace(/^"|"$/g, ""));
+            const row = {};
+            headers.forEach((header, index) => {
+              row[header] = values[index] || "";
+            });
+            return row;
+          });
 
-          categoryData = lines.slice(1).map(line => {
-            const values = line.split(",").map(v => v.trim().replace(/^"|"$/g, ""));
-            const path = values[pathIndex] || "";
-            const keywordsStr = keywordsIndex >= 0 ? values[keywordsIndex] : "";
-            const keywords = keywordsStr ? keywordsStr.split(/[,;|]/).map(k => k.trim()).filter(k => k) : [];
-            const parentPath = parentIndex >= 0 ? values[parentIndex] : "";
+          // First pass: build map of id -> category info
+          allRows.forEach(row => {
+            const id = row.id || row.ID || "";
+            const name = row.name || row.Name || "";
+            const parentCat = row.parentCategory || row["parentCategory"] || "";
+            const urlSlug = row.urlSlug || row["urlSlug"] || "";
+            
+            categoryMap.set(id, {
+              id,
+              name,
+              parentCategory: parentCat,
+              urlSlug,
+              description: row.description || row.Description || ""
+            });
+          });
 
-            return { path, keywords, parentPath };
+          // Second pass: build full paths and extract keywords
+          categoryData = allRows.map(row => {
+            const name = row.name || row.Name || "";
+            const parentCat = row.parentCategory || row["parentCategory"] || "";
+            const urlSlug = row.urlSlug || row["urlSlug"] || "";
+            const description = row.description || row.Description || "";
+            
+            // Build full path from parentCategory hierarchy
+            let fullPath = "";
+            if (urlSlug) {
+              fullPath = urlSlug; // Use urlSlug as the path
+            } else if (parentCat && name) {
+              // Build path from parentCategory > name
+              fullPath = parentCat ? `${parentCat} > ${name}` : name;
+            } else if (name) {
+              fullPath = name;
+            }
+
+            // Extract keywords from name, description, and meta keywords
+            const keywords = [];
+            if (name) keywords.push(name.toLowerCase());
+            if (description) {
+              // Extract meaningful words from description (remove HTML, common words)
+              const descWords = description
+                .replace(/<[^>]+>/g, " ") // Remove HTML tags
+                .toLowerCase()
+                .split(/\s+/)
+                .filter(w => w.length > 3 && !/^(the|and|for|with|from|that|this|are|was|were|been|have|has|had|will|would|could|should|may|might|must|can)$/i.test(w))
+                .slice(0, 5); // Take first 5 meaningful words
+              keywords.push(...descWords);
+            }
+            if (row.metaKeywords) {
+              const metaKeywords = row.metaKeywords.split(/[,;]/).map(k => k.trim().toLowerCase());
+              keywords.push(...metaKeywords);
+            }
+
+            return {
+              path: fullPath,
+              keywords: [...new Set(keywords)], // Remove duplicates
+              parentPath: parentCat || ""
+            };
           }).filter(cat => cat.path);
         } else {
           const json = JSON.parse(text);
@@ -157,22 +237,38 @@ export default function CategoryMatcherTest() {
     setError(null);
 
     try {
-      // Find category column
+      // Find category column (try multiple names)
       const categoryCol = csvData.headers.find(h => 
+        /^category$/i.test(h)
+      ) || csvData.headers.find(h => 
         /category|cat|type|path|group/i.test(h)
+      );
+
+      // Find product name column
+      const nameCol = csvData.headers.find(h => 
+        /^(item description|product name|name|title)$/i.test(h)
+      ) || csvData.headers.find(h => 
+        /name|title|description/i.test(h)
+      );
+
+      // Find description column
+      const descCol = csvData.headers.find(h => 
+        /^(long description|description)$/i.test(h)
+      ) || csvData.headers.find(h => 
+        /description/i.test(h) && !/item description/i.test(h)
       );
 
       // Prepare products for matching
       const products = csvData.rows.map((row, index) => ({
         index,
         distributorCategory: categoryCol ? row[categoryCol] : "",
-        productName: row.title || row.name || row["Product Name"] || "",
-        description: row.description || row["Item Description"] || ""
+        productName: nameCol ? row[nameCol] : row["Item Description"] || row["Product Name"] || "",
+        description: descCol ? row[descCol] : row["Long Description"] || ""
       }));
 
-      // Simple matching logic (client-side for test page)
+      // Enhanced matching logic
       const matches = products.map(product => {
-        const distributorCat = (product.distributorCategory || "").toLowerCase();
+        const distributorCat = (product.distributorCategory || "").toLowerCase().trim();
         const productName = (product.productName || "").toLowerCase();
         const description = (product.description || "").toLowerCase();
         const searchText = `${distributorCat} ${productName} ${description}`;
@@ -182,25 +278,64 @@ export default function CategoryMatcherTest() {
 
         categories.forEach(cat => {
           let score = 0;
+          const catPath = (cat.path || "").toLowerCase();
+          const catName = catPath.split("/").pop().split(">").pop().trim();
 
-          // Exact path match
-          if (distributorCat && cat.path.toLowerCase().includes(distributorCat)) {
-            score += 10;
+          // 1. Direct distributor category match (highest priority)
+          if (distributorCat) {
+            // Exact match with category name
+            if (catName === distributorCat || catName.includes(distributorCat) || distributorCat.includes(catName)) {
+              score += 20;
+            }
+            // Match in path
+            if (catPath.includes(distributorCat)) {
+              score += 15;
+            }
+            // Partial match
+            const distWords = distributorCat.split(/\s+/);
+            distWords.forEach(word => {
+              if (word.length > 3 && catPath.includes(word)) {
+                score += 5;
+              }
+            });
           }
 
-          // Keyword matching
+          // 2. Keyword matching in product name/description
           (cat.keywords || []).forEach(keyword => {
             const lowerKeyword = keyword.toLowerCase();
             if (searchText.includes(lowerKeyword)) {
-              score += 5;
+              score += 8;
+            }
+            // Partial keyword match
+            if (lowerKeyword.length > 4 && searchText.includes(lowerKeyword.substring(0, 4))) {
+              score += 3;
             }
           });
 
-          // Category name in path
-          const categoryName = cat.path.split("/").pop().toLowerCase();
-          if (searchText.includes(categoryName)) {
-            score += 3;
+          // 3. Category name in product text
+          if (catName && catName.length > 2) {
+            if (searchText.includes(catName)) {
+              score += 6;
+            }
+            // Check for variations (e.g., "lube" vs "lubricant")
+            if (catName.includes("lube") && (searchText.includes("lubricant") || searchText.includes("lube"))) {
+              score += 10;
+            }
+            if (catName.includes("vibrat") && searchText.includes("vibrat")) {
+              score += 10;
+            }
+            if (catName.includes("dildo") && searchText.includes("dildo")) {
+              score += 10;
+            }
           }
+
+          // 4. Path segment matching
+          const pathSegments = catPath.split(/[\/>]/).map(s => s.trim().toLowerCase());
+          pathSegments.forEach(segment => {
+            if (segment.length > 3 && searchText.includes(segment)) {
+              score += 4;
+            }
+          });
 
           if (score > bestScore) {
             bestScore = score;
@@ -211,7 +346,7 @@ export default function CategoryMatcherTest() {
         return {
           productIndex: product.index,
           suggestedCategory: bestMatch,
-          confidence: bestScore > 0 ? Math.min(100, (bestScore / 20) * 100) : 0
+          confidence: bestScore > 0 ? Math.min(100, (bestScore / 30) * 100) : 0
         };
       });
 
