@@ -1077,10 +1077,13 @@ export default function CategoryMatcherTest() {
             <div style={{ display: "flex", gap: "12px", marginTop: "24px" }}>
               <button
                 onClick={(e) => {
-                  e.currentTarget.style.transform = "scale(0.95)";
+                  const btn = e.currentTarget;
+                  btn.style.transform = "scale(0.95)";
+                  btn.style.opacity = "0.8";
                   setTimeout(() => {
-                    e.currentTarget.style.transform = "scale(1)";
-                  }, 100);
+                    btn.style.transform = "scale(1)";
+                    btn.style.opacity = "1";
+                  }, 150);
                   setStep(2);
                 }}
                 style={{
@@ -1092,9 +1095,22 @@ export default function CategoryMatcherTest() {
                   borderRadius: "8px",
                   cursor: "pointer",
                   flex: 1,
-                  transition: "all 0.2s ease",
+                  transition: "all 0.15s ease",
                   transform: "scale(1)",
-                  boxShadow: "0 2px 4px rgba(0,0,0,0.2)"
+                  boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
+                  opacity: 1
+                }}
+                onMouseDown={(e) => {
+                  e.currentTarget.style.transform = "scale(0.95)";
+                  e.currentTarget.style.opacity = "0.8";
+                }}
+                onMouseUp={(e) => {
+                  e.currentTarget.style.transform = "scale(1)";
+                  e.currentTarget.style.opacity = "1";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = "scale(1)";
+                  e.currentTarget.style.opacity = "1";
                 }}
               >
                 Next: Upload Distributor CSV
@@ -1216,10 +1232,14 @@ export default function CategoryMatcherTest() {
             {csvData && (
               <button
                 onClick={(e) => {
-                  e.currentTarget.style.transform = "scale(0.95)";
+                  if (loading) return;
+                  const btn = e.currentTarget;
+                  btn.style.transform = "scale(0.95)";
+                  btn.style.opacity = "0.8";
                   setTimeout(() => {
-                    e.currentTarget.style.transform = "scale(1)";
-                  }, 100);
+                    btn.style.transform = "scale(1)";
+                    btn.style.opacity = "1";
+                  }, 150);
                   setStep(3);
                   matchCategories();
                 }}
@@ -1233,26 +1253,46 @@ export default function CategoryMatcherTest() {
                   borderRadius: "8px",
                   cursor: loading ? "not-allowed" : "pointer",
                   flex: 1,
-                  transition: "all 0.2s ease",
+                  transition: "all 0.15s ease",
                   transform: "scale(1)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  gap: "8px"
+                  gap: "8px",
+                  opacity: 1,
+                  position: "relative"
+                }}
+                onMouseDown={(e) => {
+                  if (!loading) {
+                    e.currentTarget.style.transform = "scale(0.95)";
+                    e.currentTarget.style.opacity = "0.8";
+                  }
+                }}
+                onMouseUp={(e) => {
+                  if (!loading) {
+                    e.currentTarget.style.transform = "scale(1)";
+                    e.currentTarget.style.opacity = "1";
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!loading) {
+                    e.currentTarget.style.transform = "scale(1)";
+                    e.currentTarget.style.opacity = "1";
+                  }
                 }}
               >
                 {loading ? (
                   <>
                     <span style={{
                       display: "inline-block",
-                      width: "16px",
-                      height: "16px",
-                      border: "2px solid #020617",
+                      width: "18px",
+                      height: "18px",
+                      border: "3px solid #020617",
                       borderTopColor: "transparent",
                       borderRadius: "50%",
                       animation: "spin 0.8s linear infinite"
                     }}></span>
-                    Matching...
+                    Matching Categories...
                   </>
                 ) : (
                   "Match Categories"
@@ -1261,10 +1301,13 @@ export default function CategoryMatcherTest() {
             )}
             <button
               onClick={(e) => {
-                e.currentTarget.style.transform = "scale(0.95)";
+                const btn = e.currentTarget;
+                btn.style.transform = "scale(0.95)";
+                btn.style.opacity = "0.8";
                 setTimeout(() => {
-                  e.currentTarget.style.transform = "scale(1)";
-                }, 100);
+                  btn.style.transform = "scale(1)";
+                  btn.style.opacity = "1";
+                }, 150);
                 handleReset();
               }}
               style={{ 
@@ -1275,9 +1318,22 @@ export default function CategoryMatcherTest() {
                 fontWeight: 700, 
                 border: "none", 
                 cursor: "pointer",
-                transition: "all 0.2s ease",
+                transition: "all 0.15s ease",
                 boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
-                transform: "scale(1)"
+                transform: "scale(1)",
+                opacity: 1
+              }}
+              onMouseDown={(e) => {
+                e.currentTarget.style.transform = "scale(0.95)";
+                e.currentTarget.style.opacity = "0.8";
+              }}
+              onMouseUp={(e) => {
+                e.currentTarget.style.transform = "scale(1)";
+                e.currentTarget.style.opacity = "1";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = "scale(1)";
+                e.currentTarget.style.opacity = "1";
               }}
             >
               Reset All
@@ -1296,11 +1352,29 @@ export default function CategoryMatcherTest() {
 
           {loading && (
             <div style={{
-              padding: "20px",
+              padding: "32px",
               textAlign: "center",
-              color: "#60a5fa"
+              background: "rgba(59, 130, 246, 0.1)",
+              borderRadius: "12px",
+              border: "2px solid #3b82f6",
+              marginBottom: "24px"
             }}>
-              Matching categories...
+              <div style={{
+                display: "inline-block",
+                width: "40px",
+                height: "40px",
+                border: "4px solid #3b82f6",
+                borderTopColor: "transparent",
+                borderRadius: "50%",
+                animation: "spin 0.8s linear infinite",
+                marginBottom: "16px"
+              }}></div>
+              <div style={{ color: "#60a5fa", fontSize: "18px", fontWeight: "600", marginBottom: "8px" }}>
+                Matching Categories...
+              </div>
+              <div style={{ color: "#9ca3af", fontSize: "14px" }}>
+                This may take a moment for large product lists
+              </div>
             </div>
           )}
 
@@ -1359,10 +1433,14 @@ export default function CategoryMatcherTest() {
               <div style={{ display: "flex", gap: "12px" }}>
                 <button
                   onClick={(e) => {
-                    e.currentTarget.style.transform = "scale(0.95)";
+                    if (loading) return;
+                    const btn = e.currentTarget;
+                    btn.style.transform = "scale(0.95)";
+                    btn.style.opacity = "0.8";
                     setTimeout(() => {
-                      e.currentTarget.style.transform = "scale(1)";
-                    }, 100);
+                      btn.style.transform = "scale(1)";
+                      btn.style.opacity = "1";
+                    }, 150);
                     exportCsv();
                   }}
                   disabled={loading}
@@ -1375,27 +1453,46 @@ export default function CategoryMatcherTest() {
                     borderRadius: "8px",
                     cursor: loading ? "not-allowed" : "pointer",
                     flex: 1,
-                    transition: "all 0.2s ease",
+                    transition: "all 0.15s ease",
                     transform: "scale(1)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     gap: "8px",
-                    boxShadow: "0 2px 4px rgba(0,0,0,0.2)"
+                    boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
+                    opacity: 1
+                  }}
+                  onMouseDown={(e) => {
+                    if (!loading) {
+                      e.currentTarget.style.transform = "scale(0.95)";
+                      e.currentTarget.style.opacity = "0.8";
+                    }
+                  }}
+                  onMouseUp={(e) => {
+                    if (!loading) {
+                      e.currentTarget.style.transform = "scale(1)";
+                      e.currentTarget.style.opacity = "1";
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!loading) {
+                      e.currentTarget.style.transform = "scale(1)";
+                      e.currentTarget.style.opacity = "1";
+                    }
                   }}
                 >
                   {loading ? (
                     <>
                       <span style={{
                         display: "inline-block",
-                        width: "16px",
-                        height: "16px",
-                        border: "2px solid #020617",
+                        width: "18px",
+                        height: "18px",
+                        border: "3px solid #020617",
                         borderTopColor: "transparent",
                         borderRadius: "50%",
                         animation: "spin 0.8s linear infinite"
                       }}></span>
-                      Exporting...
+                      Exporting CSV...
                     </>
                   ) : (
                     "Export CSV with Categories"
@@ -1403,10 +1500,13 @@ export default function CategoryMatcherTest() {
                 </button>
                 <button
                   onClick={(e) => {
-                    e.currentTarget.style.transform = "scale(0.95)";
+                    const btn = e.currentTarget;
+                    btn.style.transform = "scale(0.95)";
+                    btn.style.opacity = "0.8";
                     setTimeout(() => {
-                      e.currentTarget.style.transform = "scale(1)";
-                    }, 100);
+                      btn.style.transform = "scale(1)";
+                      btn.style.opacity = "1";
+                    }, 150);
                     handleReset();
                   }}
                   style={{ 
@@ -1417,9 +1517,22 @@ export default function CategoryMatcherTest() {
                     fontWeight: 700, 
                     border: "none", 
                     cursor: "pointer",
-                    transition: "all 0.2s ease",
+                    transition: "all 0.15s ease",
                     boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
-                    transform: "scale(1)"
+                    transform: "scale(1)",
+                    opacity: 1
+                  }}
+                  onMouseDown={(e) => {
+                    e.currentTarget.style.transform = "scale(0.95)";
+                    e.currentTarget.style.opacity = "0.8";
+                  }}
+                  onMouseUp={(e) => {
+                    e.currentTarget.style.transform = "scale(1)";
+                    e.currentTarget.style.opacity = "1";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = "scale(1)";
+                    e.currentTarget.style.opacity = "1";
                   }}
                 >
                   Reset All
