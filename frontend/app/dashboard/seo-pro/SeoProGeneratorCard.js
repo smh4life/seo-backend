@@ -220,7 +220,7 @@ const SeoProGeneratorCard = forwardRef(function SeoProGeneratorCard(props, ref) 
       saveState({ csvData: parsedData });
     } catch (e) {
       console.error("[CSV Parse] Error:", e);
-      setError("Failed to parse CSV file: " + e.message);
+      setError("Unable to read CSV file. Please check the file format and try again.");
     }
   };
 
@@ -344,14 +344,22 @@ const SeoProGeneratorCard = forwardRef(function SeoProGeneratorCard(props, ref) 
             if (!res.ok) {
               const errorText = await res.text();
               console.error("Generation failed for", productName, ":", res.status, errorText);
-              return { ...row, error: `Generation failed (${res.status})` };
+              let errorMsg = "Unable to generate SEO content";
+              if (res.status === 401) {
+                errorMsg = "Please log in to generate SEO content";
+              } else if (res.status === 403) {
+                errorMsg = "Pro plan required";
+              } else if (res.status === 429) {
+                errorMsg = "Too many requests. Please wait a moment.";
+              }
+              return { ...row, error: errorMsg };
             }
 
             const seoData = await res.json();
             
             if (!seoData || !seoData.title || !seoData.description) {
               console.error("Invalid response for", productName, ":", seoData);
-              return { ...row, error: "Invalid response from server" };
+              return { ...row, error: "Unable to generate SEO content. Please try again." };
             }
             return {
               ...row,
@@ -360,7 +368,8 @@ const SeoProGeneratorCard = forwardRef(function SeoProGeneratorCard(props, ref) 
               "Keywords": Array.isArray(seoData.keywords) ? seoData.keywords.join(", ") : seoData.keywords || ""
             };
           } catch (error) {
-            return { ...row, error: error.message };
+            console.error("Error generating SEO for row:", error);
+            return { ...row, error: "Unable to generate SEO content. Please try again." };
           }
         })
       );
@@ -429,7 +438,15 @@ const SeoProGeneratorCard = forwardRef(function SeoProGeneratorCard(props, ref) 
       await continueGeneration(0);
     } catch (error) {
       console.error("Generate SEO-Pro error:", error);
-      setError("Failed to generate SEO: " + (error.message || "Unknown error"));
+      let errorMsg = "Unable to generate SEO content. Please try again.";
+      if (error.message?.includes("401") || error.message?.includes("Not authenticated")) {
+        errorMsg = "Please log in to generate SEO content.";
+      } else if (error.message?.includes("403") || error.message?.includes("Pro plan")) {
+        errorMsg = "Pro plan required to generate SEO content.";
+      } else if (error.message?.includes("429") || error.message?.includes("rate limit")) {
+        errorMsg = "Too many requests. Please wait a moment and try again.";
+      }
+      setError(errorMsg);
       setIsGenerating(false);
       stateRef.current.isGenerating = false;
       saveState({ isGenerating: false });

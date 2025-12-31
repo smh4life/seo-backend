@@ -62,12 +62,18 @@ export default function DistributorCard({ onDistributorAdded }) {
         onDistributorAdded();
       }
     } catch (e) {
-      const errorMessage = e.message || "Failed to add distributor";
-      if (errorMessage.includes("Upgrade") || errorMessage.includes("plan") || errorMessage.includes("pro")) {
-        setError("Upgrade to Pro plan required to add distributors");
-      } else {
-        setError(`Failed to add distributor: ${errorMessage}`);
+      const errorMessage = e.message || "";
+      let userMessage = "Unable to add distributor. Please try again.";
+      
+      if (errorMessage.includes("Not authenticated") || errorMessage.includes("401")) {
+        userMessage = "Please log in to add distributors.";
+      } else if (errorMessage.includes("Pro plan") || errorMessage.includes("403") || errorMessage.includes("Upgrade")) {
+        userMessage = "Pro plan required to add distributors.";
+      } else if (errorMessage.includes("plan") || errorMessage.includes("pro")) {
+        userMessage = "Pro plan required to add distributors.";
       }
+      
+      setError(userMessage);
       console.error("Distributor add error:", e);
     }
   }

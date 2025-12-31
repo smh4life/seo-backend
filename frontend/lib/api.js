@@ -20,8 +20,15 @@ export async function apiPost(path, body) {
   });
 
   if (!res.ok) {
-    const text = await res.text();
-    throw new Error(text || "API error");
+    let errorMessage = "Request failed";
+    try {
+      const errorData = await res.json();
+      errorMessage = errorData.error || errorData.message || "Request failed";
+    } catch {
+      const text = await res.text();
+      errorMessage = text || "Request failed";
+    }
+    throw new Error(errorMessage);
   }
 
   return res.json();

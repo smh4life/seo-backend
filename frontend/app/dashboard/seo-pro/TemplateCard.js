@@ -57,7 +57,17 @@ export default function TemplateCard() {
       setName("");
       setError(null);
     } catch (e) {
-      setError("Upgrade required or failed to create template");
+      const errorMessage = e.message || "";
+      let userMessage = "Unable to create template. Please try again.";
+      
+      if (errorMessage.includes("Not authenticated") || errorMessage.includes("401")) {
+        userMessage = "Please log in to create templates.";
+      } else if (errorMessage.includes("Pro plan") || errorMessage.includes("403") || errorMessage.includes("Upgrade")) {
+        userMessage = "Pro plan required to create templates.";
+      }
+      
+      setError(userMessage);
+      console.error("Template create error:", e);
     }
   }
 
