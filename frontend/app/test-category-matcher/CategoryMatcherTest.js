@@ -579,6 +579,23 @@ export default function CategoryMatcherTest() {
     }
   };
 
+  // Reset everything to start over
+  const handleReset = () => {
+    if (window.confirm("Are you sure you want to reset? This will clear all uploaded data.")) {
+      setStep(1);
+      setCategories([]);
+      setCsvData(null);
+      setMatchedData(null);
+      setError(null);
+      setLoading(false);
+      // Reset file inputs
+      const categoryInput = document.getElementById("categoryFileInput");
+      const csvInput = document.getElementById("distributorCsvInput");
+      if (categoryInput) categoryInput.value = "";
+      if (csvInput) csvInput.value = "";
+    }
+  };
+
   // Export matched CSV
   const exportCsv = () => {
     try {
@@ -661,6 +678,32 @@ export default function CategoryMatcherTest() {
       padding: "24px",
       border: "1px solid #1f2937"
     }}>
+      {/* Reset Button */}
+      <div style={{
+        display: "flex",
+        justifyContent: "flex-end",
+        marginBottom: "16px"
+      }}>
+        <button
+          onClick={handleReset}
+          style={{
+            padding: "8px 16px",
+            background: "#64748b",
+            color: "#fff",
+            fontWeight: 600,
+            border: "none",
+            borderRadius: "6px",
+            cursor: "pointer",
+            fontSize: "14px",
+            transition: "background-color 0.2s"
+          }}
+          onMouseOver={(e) => e.target.style.backgroundColor = "#475569"}
+          onMouseOut={(e) => e.target.style.backgroundColor = "#64748b"}
+        >
+          Reset All
+        </button>
+      </div>
+
       {/* Step Indicator */}
       <div style={{
         display: "flex",
