@@ -7,7 +7,9 @@ const UserSchema = new mongoose.Schema({
   plan: { type: String, default: "free" },
   stripeCustomerId: String,
   stripeSubscriptionId: String,
-  isAdmin: { type: Boolean, default: false } // Admin users bypass all plan restrictions
+  isAdmin: { type: Boolean, default: false }, // Admin users bypass all plan restrictions
+  resetPasswordToken: String,
+  resetPasswordExpires: Date
 }, { timestamps: true });
 
 export default mongoose.model("User", UserSchema);

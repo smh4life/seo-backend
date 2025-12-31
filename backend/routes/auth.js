@@ -1,5 +1,5 @@
 import express from "express";
-import { register, login } from "../controllers/authController.js";
+import { register, login, forgotPassword, resetPassword } from "../controllers/authController.js";
 import { requireAuth } from "../middleware/auth.js";
 import User from "../models/User.schema.js";
 
@@ -7,6 +7,8 @@ const router = express.Router();
 
 router.post("/register", register);
 router.post("/login", login);
+router.post("/forgot-password", forgotPassword);
+router.post("/reset-password", resetPassword);
 
 // Get current user info
 router.get("/me", requireAuth, async (req, res) => {
