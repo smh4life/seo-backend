@@ -686,19 +686,17 @@ export default function CategoryMatcherTest() {
       }}>
         <button
           onClick={handleReset}
-          style={{
-            padding: "8px 16px",
-            background: "#64748b",
-            color: "#fff",
-            fontWeight: 600,
-            border: "none",
-            borderRadius: "6px",
+          style={{ 
+            padding: "12px 20px", 
+            borderRadius: "10px", 
+            background: "#4dabff",
+            color: "#020617", 
+            fontWeight: 700, 
+            border: "none", 
             cursor: "pointer",
-            fontSize: "14px",
-            transition: "background-color 0.2s"
+            transition: "transform 0.1s ease",
+            boxShadow: "0 2px 4px rgba(0,0,0,0.2)"
           }}
-          onMouseOver={(e) => e.target.style.backgroundColor = "#475569"}
-          onMouseOut={(e) => e.target.style.backgroundColor = "#64748b"}
         >
           Reset All
         </button>
