@@ -780,7 +780,7 @@ export default function CategoryMatcherTest() {
             }}
           >
             <div style={{ color: "#60a5fa", fontSize: "16px", fontWeight: "600", marginBottom: "8px" }}>
-              {loading ? "Loading..." : categories.length > 0 ? `${categories.length} categories loaded` : "Click to Upload Categories"}
+              {loading ? "Loading..." : categories.length > 0 ? `${categories.length} categories loaded` : "Click to Upload Your Categories"}
             </div>
             <div style={{ color: "#9ca3af", fontSize: "14px" }}>
               CSV or JSON format
@@ -883,7 +883,7 @@ export default function CategoryMatcherTest() {
             }}
           >
             <div style={{ color: "#60a5fa", fontSize: "16px", fontWeight: "600", marginBottom: "8px" }}>
-              {loading ? "Loading..." : csvData ? `${csvData.rows.length} products loaded` : "Click to Upload CSV"}
+              {loading ? "Loading..." : csvData ? `${csvData.rows.length} products loaded` : "Click to Upload Distributor CSV"}
             </div>
             <div style={{ color: "#9ca3af", fontSize: "14px" }}>
               CSV format
