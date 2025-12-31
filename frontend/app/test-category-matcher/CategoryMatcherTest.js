@@ -571,35 +571,68 @@ export default function CategoryMatcherTest() {
 
   // Export matched CSV
   const exportCsv = () => {
-    if (!matchedData) {
-      setError("Please match categories first");
-      return;
-    }
+    try {
+      if (!matchedData) {
+        setError("Please match categories first");
+        return;
+      }
 
-    const csvRows = [
-      matchedData.headers.join(","),
-      ...matchedData.rows.map(row => {
-        return matchedData.headers.map(header => {
-          const value = row[header] || "";
-          if (value.includes(",") || value.includes('"') || value.includes("\n")) {
-            return `"${String(value).replace(/"/g, '""')}"`;
+      if (!matchedData.headers || !matchedData.rows) {
+        setError("Invalid data format. Please try matching again.");
+        return;
+      }
+
+      console.log("Exporting CSV with data:", {
+        headers: matchedData.headers,
+        rowCount: matchedData.rows.length,
+        sampleRow: matchedData.rows[0]
+      });
+
+      const csvRows = [
+        matchedData.headers.join(","),
+        ...matchedData.rows.map(row => {
+          return matchedData.headers.map(header => {
+            const value = row[header] || "";
+            // Properly escape CSV values
+            if (value.includes(",") || value.includes('"') || value.includes("\n") || value.includes("\r")) {
+              return `"${String(value).replace(/"/g, '""')}"`;
+            }
+            return String(value);
+          }).join(",");
+        })
+      ];
+
+      const csvContent = csvRows.join("\n");
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const link = document.createElement("a");
+      const url = URL.createObjectURL(blob);
+      link.setAttribute("href", url);
+      link.setAttribute("download", "matched_products.csv");
+      link.style.visibility = "hidden";
+      link.style.display = "none";
+      document.body.appendChild(link);
+      
+      // Trigger download
+      link.click();
+      
+      // Cleanup after a delay
+      setTimeout(() => {
+        try {
+          if (link && link.parentNode) {
+            document.body.removeChild(link);
           }
-          return String(value);
-        }).join(",");
-      })
-    ];
+          URL.revokeObjectURL(url);
+        } catch (e) {
+          console.error("Cleanup error:", e);
+        }
+      }, 100);
 
-    const csvContent = csvRows.join("\n");
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const link = document.createElement("a");
-    const url = URL.createObjectURL(blob);
-    link.setAttribute("href", url);
-    link.setAttribute("download", "matched_products.csv");
-    link.style.visibility = "hidden";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+      setError(null);
+      alert(`CSV exported successfully! ${matchedData.rows.length} products with categories.`);
+    } catch (err) {
+      console.error("Export error:", err);
+      setError("Failed to export CSV: " + err.message);
+    }
   };
 
   return (
