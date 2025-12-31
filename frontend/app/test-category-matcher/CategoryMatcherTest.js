@@ -852,22 +852,39 @@ export default function CategoryMatcherTest() {
           )}
 
           {categories.length > 0 && (
-            <button
-              onClick={() => setStep(2)}
-              style={{
-                marginTop: "24px",
-                padding: "12px 24px",
-                background: "#4dabff",
-                color: "#020617",
-                fontWeight: 700,
-                border: "none",
-                borderRadius: "8px",
-                cursor: "pointer",
-                width: "100%"
-              }}
-            >
-              Next: Upload Distributor CSV
-            </button>
+            <div style={{ display: "flex", gap: "12px", marginTop: "24px" }}>
+              <button
+                onClick={() => setStep(2)}
+                style={{
+                  padding: "12px 24px",
+                  background: "#4dabff",
+                  color: "#020617",
+                  fontWeight: 700,
+                  border: "none",
+                  borderRadius: "8px",
+                  cursor: "pointer",
+                  flex: 1
+                }}
+              >
+                Next: Upload Distributor CSV
+              </button>
+              <button
+                onClick={handleReset}
+                style={{ 
+                  padding: "12px 20px", 
+                  borderRadius: "10px", 
+                  background: "#4dabff",
+                  color: "#020617", 
+                  fontWeight: 700, 
+                  border: "none", 
+                  cursor: "pointer",
+                  transition: "transform 0.1s ease",
+                  boxShadow: "0 2px 4px rgba(0,0,0,0.2)"
+                }}
+              >
+                Reset All
+              </button>
+            </div>
           )}
         </div>
       )}
@@ -1096,6 +1113,22 @@ export default function CategoryMatcherTest() {
                   }}
                 >
                   Export CSV with Categories
+                </button>
+                <button
+                  onClick={handleReset}
+                  style={{ 
+                    padding: "12px 20px", 
+                    borderRadius: "10px", 
+                    background: "#4dabff",
+                    color: "#020617", 
+                    fontWeight: 700, 
+                    border: "none", 
+                    cursor: "pointer",
+                    transition: "transform 0.1s ease",
+                    boxShadow: "0 2px 4px rgba(0,0,0,0.2)"
+                  }}
+                >
+                  Reset All
                 </button>
               </div>
             </>
