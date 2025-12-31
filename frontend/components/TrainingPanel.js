@@ -519,6 +519,175 @@ Product Name 3`}
     );
   }
 
+  if (type === "category-matcher") {
+    return (
+      <aside
+        style={{
+          position: "fixed",
+          right: 0,
+          top: "79px",
+          width: "360px",
+          height: "calc(100vh - 79px)",
+          background: "rgba(15, 23, 42, 0.98)",
+          padding: "24px",
+          paddingBottom: "500px",
+          borderLeft: "1px solid #1f2937",
+          overflowY: "auto",
+          overflowX: "hidden",
+          zIndex: 997,
+          color: "#e5e7eb"
+        }}
+      >
+        <h2 style={{ 
+          marginTop: 0, 
+          marginBottom: "20px", 
+          color: "#ffffff",
+          fontSize: "20px",
+          fontWeight: "600"
+        }}>
+          Category Matcher Guide
+        </h2>
+        
+        <div style={{ marginBottom: "24px" }}>
+          <h3 style={{ 
+            color: "#60a5fa", 
+            fontSize: "16px", 
+            fontWeight: "600",
+            marginBottom: "12px"
+          }}>
+            What is Category Matcher?
+          </h3>
+          <p style={{ 
+            color: "#d1d5db", 
+            lineHeight: "1.6",
+            marginBottom: "12px"
+          }}>
+            The Category Matcher automatically matches products from your distributor CSV files to your custom category structure. Instead of manually assigning categories to hundreds or thousands of products, the system uses intelligent matching to suggest the correct category path for each product.
+          </p>
+        </div>
+
+        <div style={{ marginBottom: "24px" }}>
+          <h3 style={{ 
+            color: "#60a5fa", 
+            fontSize: "16px", 
+            fontWeight: "600",
+            marginBottom: "12px"
+          }}>
+            How to Use:
+          </h3>
+          <ol style={{ 
+            paddingLeft: "20px", 
+            color: "#d1d5db",
+            lineHeight: "1.8"
+          }}>
+            <li style={{ marginBottom: "8px" }}>
+              <strong style={{ color: "#ffffff" }}>Step 1 - Upload Your Categories:</strong> Click "Click to Upload Your Categories" and upload a CSV or JSON file containing your category structure. The system will extract category paths, keywords, and parent relationships.
+            </li>
+            <li style={{ marginBottom: "8px" }}>
+              <strong style={{ color: "#ffffff" }}>Step 2 - Upload Distributor CSV:</strong> Upload the CSV file from your distributor containing product information. The system will automatically detect product names, descriptions, and distributor categories.
+            </li>
+            <li style={{ marginBottom: "8px" }}>
+              <strong style={{ color: "#ffffff" }}>Step 3 - Match Categories:</strong> Click "Match Categories" to automatically match products to your categories. The system uses keyword matching, path segments, and fuzzy matching to find the best category for each product.
+            </li>
+            <li style={{ marginBottom: "8px" }}>
+              <strong style={{ color: "#ffffff" }}>Review Matches:</strong> Review the match summary showing total products, matched count, high confidence matches, and products needing review. Check the sample matches to verify accuracy.
+            </li>
+            <li style={{ marginBottom: "8px" }}>
+              <strong style={{ color: "#ffffff" }}>Export CSV:</strong> Click "Export CSV with Categories" to download your products with the matched category paths. The Category column will be replaced with your category paths, ready for import.
+            </li>
+          </ol>
+        </div>
+
+        <div style={{ marginBottom: "24px" }}>
+          <h3 style={{ 
+            color: "#60a5fa", 
+            fontSize: "16px", 
+            fontWeight: "600",
+            marginBottom: "12px"
+          }}>
+            Category File Format:
+          </h3>
+          <p style={{ 
+            color: "#d1d5db", 
+            lineHeight: "1.6",
+            marginBottom: "12px"
+          }}>
+            Your category CSV should include these columns:
+          </p>
+          <ul style={{ 
+            paddingLeft: "20px", 
+            color: "#d1d5db",
+            lineHeight: "1.8"
+          }}>
+            <li style={{ marginBottom: "6px" }}><strong style={{ color: "#ffffff" }}>name</strong> - Category name</li>
+            <li style={{ marginBottom: "6px" }}><strong style={{ color: "#ffffff" }}>urlSlug</strong> - Category path (e.g., "lubes/water-based")</li>
+            <li style={{ marginBottom: "6px" }}><strong style={{ color: "#ffffff" }}>parentCategory</strong> - Parent category name</li>
+            <li style={{ marginBottom: "6px" }}><strong style={{ color: "#ffffff" }}>description</strong> - Category description (used for keyword extraction)</li>
+            <li style={{ marginBottom: "6px" }}><strong style={{ color: "#ffffff" }}>metaKeywords</strong> - Additional keywords (optional)</li>
+          </ul>
+        </div>
+
+        <div style={{ marginBottom: "24px" }}>
+          <h3 style={{ 
+            color: "#60a5fa", 
+            fontSize: "16px", 
+            fontWeight: "600",
+            marginBottom: "12px"
+          }}>
+            Matching Algorithm:
+          </h3>
+          <ul style={{ 
+            paddingLeft: "20px", 
+            color: "#d1d5db",
+            lineHeight: "1.8"
+          }}>
+            <li style={{ marginBottom: "6px" }}>
+              <strong style={{ color: "#ffffff" }}>Direct Path Match:</strong> Matches distributor category to your category path
+            </li>
+            <li style={{ marginBottom: "6px" }}>
+              <strong style={{ color: "#ffffff" }}>Keyword Overlap:</strong> Matches based on keywords in product descriptions and category keywords
+            </li>
+            <li style={{ marginBottom: "6px" }}>
+              <strong style={{ color: "#ffffff" }}>Path Segments:</strong> Matches category path segments to product text
+            </li>
+            <li style={{ marginBottom: "6px" }}>
+              <strong style={{ color: "#ffffff" }}>Fuzzy Matching:</strong> Handles common variations (e.g., "lube" vs "lubricant")
+            </li>
+            <li style={{ marginBottom: "6px" }}>
+              <strong style={{ color: "#ffffff" }}>Confidence Score:</strong> Each match includes a confidence percentage (80%+ is high confidence)
+            </li>
+          </ul>
+        </div>
+
+        <div style={{ 
+          background: "#1e3a5f", 
+          padding: "16px", 
+          borderRadius: "6px",
+          border: "1px solid #3b82f6",
+          marginBottom: "150px"
+        }}>
+          <h3 style={{ 
+            color: "#60a5fa", 
+            fontSize: "14px", 
+            fontWeight: "600",
+            marginTop: 0,
+            marginBottom: "8px"
+          }}>
+            💡 Pro Tip:
+          </h3>
+          <p style={{ 
+            color: "#d1d5db", 
+            margin: 0,
+            fontSize: "14px",
+            lineHeight: "1.6"
+          }}>
+            For best results, ensure your category CSV includes descriptive keywords in the description field. The more keywords you provide, the better the matching accuracy. Review low-confidence matches (below 80%) manually before importing.
+          </p>
+        </div>
+      </aside>
+    );
+  }
+
   // Fallback for other types
   return null;
 }

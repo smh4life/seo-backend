@@ -57,7 +57,7 @@ export default function BillingPage() {
         <PlanCard
           plan="Pro"
           price="$39/mo"
-          features={["Everything", "SEO-Pro", "Templates"]}
+          features={["Everything", "SEO-Pro", "Templates", "Category Matcher"]}
           onSelect={checkout}
         />
       </div>

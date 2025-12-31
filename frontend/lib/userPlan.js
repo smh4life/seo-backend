@@ -52,22 +52,26 @@ export function hasPlanAccess(feature) {
     free: {
       single: true,  // Free users get 5 free single generates
       batch: false,
-      seoPro: false
+      seoPro: false,
+      categoryMatcher: false
     },
     single: {
       single: true,
       batch: false,
-      seoPro: false
+      seoPro: false,
+      categoryMatcher: false
     },
     batch: {
       single: true,
       batch: true,
-      seoPro: false
+      seoPro: false,
+      categoryMatcher: false
     },
     pro: {
       single: true,
       batch: true,
-      seoPro: true
+      seoPro: true,
+      categoryMatcher: true
     }
   };
   
