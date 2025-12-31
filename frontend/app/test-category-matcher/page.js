@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import CategoryMatcherTest from "./CategoryMatcherTest";
 
 export default function TestCategoryMatcherPage() {

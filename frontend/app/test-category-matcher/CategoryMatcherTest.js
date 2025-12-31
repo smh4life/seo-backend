@@ -618,7 +618,7 @@ export default function CategoryMatcherTest() {
                 <div style={{ color: "#cbd5f5", fontSize: "14px" }}>
                   <div>Total Products: {matchedData.rows.length}</div>
                   <div>Matched: {matchedData.matches.filter(m => m.suggestedCategory).length}</div>
-                  <div>High Confidence (>80%): {matchedData.matches.filter(m => m.confidence > 80).length}</div>
+                  <div>High Confidence ({'>'}80%): {matchedData.matches.filter(m => m.confidence > 80).length}</div>
                   <div>Needs Review: {matchedData.matches.filter(m => !m.suggestedCategory || m.confidence <= 80).length}</div>
                 </div>
               </div>
