@@ -1,5 +1,6 @@
 import express from "express";
-import { requireAuth, requirePlan } from "../middleware/auth.js";
+import { requireAuth } from "../middleware/auth.js";
+import { requirePlan } from "../middleware/requirePlan.js";
 import {
   listCategories,
   importCategories,
