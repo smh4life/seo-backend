@@ -332,6 +332,42 @@ export default function CategoryMatcherTest() {
     setError(null);
 
     try {
+      // Filter out parent categories - only match to leaf categories (categories with no children)
+      // A category is a parent if another category's path starts with this category's path
+      const allCategoryPaths = categories.map(cat => (cat.path || "").toLowerCase().trim()).filter(p => p);
+      const parentCategoryPaths = new Set();
+      
+      // Identify parent categories
+      allCategoryPaths.forEach(path => {
+        // Check if any other category path starts with this path + separator
+        const isParent = allCategoryPaths.some(otherPath => {
+          if (otherPath === path) return false; // Don't compare to itself
+          // Check if other path starts with this path followed by a separator
+          return otherPath.startsWith(path + "/") || 
+                 otherPath.startsWith(path + " > ") ||
+                 otherPath.startsWith(path + "\\") ||
+                 otherPath.startsWith(path + "|");
+        });
+        
+        if (isParent) {
+          parentCategoryPaths.add(path);
+        }
+      });
+      
+      // Filter to only leaf categories (categories that are NOT parents)
+      const leafCategories = categories.filter(cat => {
+        const catPath = (cat.path || "").toLowerCase().trim();
+        return !parentCategoryPaths.has(catPath);
+      });
+      
+      if (leafCategories.length === 0) {
+        setError("No leaf categories found. All categories appear to be parent categories. Products must be assigned to child categories, not parent categories.");
+        setLoading(false);
+        return;
+      }
+      
+      console.log(`Filtered ${categories.length} categories to ${leafCategories.length} leaf categories (excluded ${parentCategoryPaths.size} parent categories)`);
+
       // Flexible column detection for distributor CSV
       const findDistributorColumn = (patterns, excludePatterns = []) => {
         // Try exact matches first
@@ -403,7 +439,7 @@ export default function CategoryMatcherTest() {
         let bestMatch = null;
         let bestScore = 0;
 
-        categories.forEach(cat => {
+        leafCategories.forEach(cat => {
           let score = 0;
           const catPath = (cat.path || "").toLowerCase();
           
