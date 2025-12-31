@@ -354,19 +354,17 @@ export default function CategoryMatcherTest() {
     try {
       // Filter out parent categories - only match to leaf categories (categories with no children)
       // A category is a parent if another category's path starts with this category's path
-      const allCategoryPaths = categories.map(cat => (cat.path || "").toLowerCase().trim()).filter(p => p);
+      // Normalize all paths first for consistent comparison
+      const allCategoryPaths = categories.map(cat => normalizePath(cat.path || "").toLowerCase().trim()).filter(p => p);
       const parentCategoryPaths = new Set();
       
       // Identify parent categories
       allCategoryPaths.forEach(path => {
-        // Check if any other category path starts with this path + separator
+        // Check if any other category path starts with this path + " > " separator
         const isParent = allCategoryPaths.some(otherPath => {
           if (otherPath === path) return false; // Don't compare to itself
-          // Check if other path starts with this path followed by a separator
-          return otherPath.startsWith(path + "/") || 
-                 otherPath.startsWith(path + " > ") ||
-                 otherPath.startsWith(path + "\\") ||
-                 otherPath.startsWith(path + "|");
+          // Check if other path starts with this path followed by " > "
+          return otherPath.startsWith(path + " > ");
         });
         
         if (isParent) {
@@ -376,7 +374,7 @@ export default function CategoryMatcherTest() {
       
       // Filter to only leaf categories (categories that are NOT parents)
       const leafCategories = categories.filter(cat => {
-        const catPath = (cat.path || "").toLowerCase().trim();
+        const catPath = normalizePath(cat.path || "").toLowerCase().trim();
         return !parentCategoryPaths.has(catPath);
       });
       
