@@ -768,7 +768,16 @@ export default function SingleGeneratorPage() {
               console.error("Generation error:", err);
               // Save error state
               saveState({ isGenerating: false });
-              const errorMessage = err.message || "Failed to generate SEO content. Please try again.";
+              let errorMessage = "Unable to generate SEO content. Please try again.";
+              if (err.message?.includes("free limit") || err.message?.includes("5 free")) {
+                errorMessage = err.message;
+              } else if (err.message?.includes("401") || err.message?.includes("Not authenticated")) {
+                errorMessage = "Please log in to generate SEO content.";
+              } else if (err.message?.includes("403") || err.message?.includes("plan")) {
+                errorMessage = "Pro plan required.";
+              } else if (err.message?.includes("429") || err.message?.includes("rate limit")) {
+                errorMessage = "Too many requests. Please wait a moment and try again.";
+              }
               alert(errorMessage);
             })
             .finally(() => {

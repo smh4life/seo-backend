@@ -219,7 +219,15 @@ export default function LandingPage() {
     })
     .catch(err => {
       console.error("Generation error:", err);
-      alert(err.message || "Failed to generate SEO content. Please try again.");
+      let errorMsg = "Unable to generate SEO content. Please try again.";
+      if (err.message?.includes("free limit") || err.message?.includes("5 free")) {
+        errorMsg = err.message;
+      } else if (err.message?.includes("401") || err.message?.includes("Not authenticated")) {
+        errorMsg = "Please log in to generate SEO content.";
+      } else if (err.message?.includes("403") || err.message?.includes("plan")) {
+        errorMsg = "Pro plan required.";
+      }
+      alert(errorMsg);
       updateIsGenerating(false);
       saveState({ isGenerating: false });
     });
