@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import GeneratorCard from "../../../components/GeneratorCard";
 import ErrorState from "../../../components/ErrorState";
+import ConfirmDialog from "../../../components/ConfirmDialog";
 import { apiPost } from "../../../lib/api";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
@@ -12,6 +13,7 @@ export default function TemplateCard() {
   const [name, setName] = useState("");
   const [type, setType] = useState("product");
   const [error, setError] = useState(null);
+  const [confirm, setConfirm] = useState(null);
 
   const loadTemplates = async () => {
     try {
@@ -53,7 +55,8 @@ export default function TemplateCard() {
 
     try {
       const t = await apiPost("/templates", { name: name.trim(), type });
-      setItems([...items, t]);
+      // Reload the full list to ensure we have the latest data
+      await loadTemplates();
       setName("");
       setError(null);
     } catch (e) {
@@ -68,6 +71,29 @@ export default function TemplateCard() {
       
       setError(userMessage);
       console.error("Template create error:", e);
+    }
+  }
+
+  async function remove(id) {
+    try {
+      const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+      const headers = {};
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+      
+      await fetch(`${API_BASE}/templates/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+        headers
+      });
+      // Reload the full list after deletion
+      await loadTemplates();
+      setConfirm(null);
+      setError(null);
+    } catch (e) {
+      setError("Unable to delete template. Please try again.");
+      console.error("Template delete error:", e);
     }
   }
 
@@ -160,11 +186,31 @@ export default function TemplateCard() {
                   background: "#0f172a",
                   border: "1px solid #1f2937",
                   borderRadius: "8px",
-                  color: "#ffffff"
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center"
                 }}
               >
-                <span style={{ fontWeight: "600" }}>{t.name}</span>
-                <span style={{ color: "#9ca3af", marginLeft: "8px" }}>({t.type})</span>
+                <div>
+                  <span style={{ fontWeight: "600", color: "#ffffff" }}>{t.name}</span>
+                  <span style={{ color: "#9ca3af", marginLeft: "8px" }}>({t.type})</span>
+                </div>
+                <button
+                  onClick={() => setConfirm(t)}
+                  style={{
+                    padding: "6px 12px",
+                    borderRadius: "6px",
+                    background: "#4dabff",
+                    color: "#020617",
+                    fontWeight: 700,
+                    border: "none",
+                    cursor: "pointer",
+                    transition: "transform 0.1s ease",
+                    boxShadow: "0 2px 4px rgba(0,0,0,0.2)"
+                  }}
+                >
+                  Delete
+                </button>
               </li>
             ))}
           </ul>
@@ -176,6 +222,13 @@ export default function TemplateCard() {
           No templates yet. Create one above to get started.
         </p>
       )}
+
+      <ConfirmDialog
+        open={!!confirm}
+        message={`Delete ${confirm?.name}?`}
+        onConfirm={() => remove(confirm.id)}
+        onCancel={() => setConfirm(null)}
+      />
     </GeneratorCard>
   );
 }
