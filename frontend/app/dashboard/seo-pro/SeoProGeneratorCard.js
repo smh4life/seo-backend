@@ -139,6 +139,30 @@ const SeoProGeneratorCard = forwardRef(function SeoProGeneratorCard(props, ref) 
     reader.readAsText(file, "UTF-8");
   };
 
+  // Clean HTML content - remove duplicate meta tags and blob URLs
+  const cleanHtmlContent = (content) => {
+    if (!content || typeof content !== 'string') return content;
+    
+    let cleaned = content;
+    
+    // Remove duplicate meta charset tags (keep only one at the start)
+    // Remove all meta charset tags first
+    cleaned = cleaned.replace(/<meta\s+charset=[^>]+>/gi, '');
+    cleaned = cleaned.replace(/<meta\s+http-equiv=["']Content-Type["'][^>]*charset[^>]*>/gi, '');
+    
+    // If content starts with HTML, add single meta charset at the beginning
+    cleaned = cleaned.trim();
+    if (cleaned.startsWith('<')) {
+      cleaned = '<meta charset="utf-8">\n' + cleaned;
+    }
+    
+    // Remove blob URLs from img tags (blob URLs are temporary and won't work in exported CSV)
+    cleaned = cleaned.replace(/<img[^>]*src=["']blob:[^"']*["'][^>]*>/gi, '');
+    cleaned = cleaned.replace(/\s+data-href=["']blob:[^"']*["']/gi, '');
+    
+    return cleaned;
+  };
+
   // Parse CSV data (handles quoted fields with commas)
   const parseCsv = (text) => {
     try {
@@ -176,7 +200,12 @@ const SeoProGeneratorCard = forwardRef(function SeoProGeneratorCard(props, ref) 
         const values = parseLine(line).map(v => v.replace(/^"|"$/g, ""));
         const row = {};
         headers.forEach((header, index) => {
-          row[header] = values[index] || "";
+          let value = values[index] || "";
+          // Clean content field if it exists
+          if (header.toLowerCase() === "content" && value) {
+            value = cleanHtmlContent(value);
+          }
+          row[header] = value;
         });
         return row;
       });
@@ -407,25 +436,103 @@ const SeoProGeneratorCard = forwardRef(function SeoProGeneratorCard(props, ref) 
     }
   };
 
+  // Merge duplicate columns - prefer existing columns over new ones, but use new data if existing is empty
+  const mergeDuplicateColumns = (row) => {
+    const merged = { ...row };
+    
+    // Merge SEO Title with pageTitle
+    if (merged["SEO Title"] && !merged["pageTitle"]) {
+      merged["pageTitle"] = merged["SEO Title"];
+    } else if (merged["pageTitle"] && !merged["SEO Title"]) {
+      merged["SEO Title"] = merged["pageTitle"];
+    } else if (merged["SEO Title"] && merged["pageTitle"]) {
+      // Both exist - prefer the new SEO Title, but keep pageTitle too for compatibility
+      merged["pageTitle"] = merged["SEO Title"];
+    }
+    
+    // Merge Meta Description with metaDescription
+    if (merged["Meta Description"] && !merged["metaDescription"]) {
+      merged["metaDescription"] = merged["Meta Description"];
+    } else if (merged["metaDescription"] && !merged["Meta Description"]) {
+      merged["Meta Description"] = merged["metaDescription"];
+    } else if (merged["Meta Description"] && merged["metaDescription"]) {
+      // Both exist - prefer the new Meta Description
+      merged["metaDescription"] = merged["Meta Description"];
+    }
+    
+    // Merge Keywords with metaKeywords
+    if (merged["Keywords"] && !merged["metaKeywords"]) {
+      merged["metaKeywords"] = merged["Keywords"];
+    } else if (merged["metaKeywords"] && !merged["Keywords"]) {
+      merged["Keywords"] = merged["metaKeywords"];
+    } else if (merged["Keywords"] && merged["metaKeywords"]) {
+      // Both exist - prefer the new Keywords
+      merged["metaKeywords"] = merged["Keywords"];
+    }
+    
+    // Clean content field if it exists
+    if (merged["content"]) {
+      merged["content"] = cleanHtmlContent(merged["content"]);
+    }
+    
+    return merged;
+  };
+
   // Download results as CSV
   const downloadCsv = () => {
     if (!results.length) return;
 
-    // Get all unique headers from original CSV and new SEO fields
-    const allHeaders = new Set([...csvData.headers, "SEO Title", "Meta Description", "Keywords"]);
+    // Get all headers from original CSV
+    const originalHeaders = csvData.headers || [];
+    
+    // Map of duplicate columns (new name -> existing name)
+    const columnMap = {
+      "SEO Title": "pageTitle",
+      "Meta Description": "metaDescription",
+      "Keywords": "metaKeywords"
+    };
+    
+    // Build headers list - prefer existing column names, add new ones if they don't exist
+    const allHeaders = new Set();
+    originalHeaders.forEach(header => {
+      allHeaders.add(header);
+    });
+    
+    // Add new SEO columns only if the mapped existing columns don't exist
+    ["SEO Title", "Meta Description", "Keywords"].forEach(newCol => {
+      const existingCol = columnMap[newCol];
+      if (!allHeaders.has(existingCol)) {
+        allHeaders.add(newCol);
+      }
+    });
+    
     const headers = Array.from(allHeaders);
 
     // Create CSV content
     const csvRows = [
       headers.join(","),
       ...results.map(row => {
+        // Merge duplicate columns and clean content
+        const cleanedRow = mergeDuplicateColumns(row);
+        
         return headers.map(header => {
-          const value = row[header] || "";
+          // Check if this header has a duplicate - use the existing column name if available
+          const existingCol = columnMap[header];
+          let value = "";
+          
+          if (existingCol && cleanedRow[existingCol]) {
+            // Use existing column (e.g., pageTitle instead of SEO Title)
+            value = cleanedRow[existingCol];
+          } else if (cleanedRow[header]) {
+            // Use the header as-is
+            value = cleanedRow[header];
+          }
+          
           // Escape commas and quotes
           if (value.includes(",") || value.includes('"') || value.includes("\n")) {
-            return `"${value.replace(/"/g, '""')}"`;
+            return `"${String(value).replace(/"/g, '""')}"`;
           }
-          return value;
+          return String(value);
         }).join(",");
       })
     ];
@@ -439,9 +546,17 @@ const SeoProGeneratorCard = forwardRef(function SeoProGeneratorCard(props, ref) 
     link.style.visibility = "hidden";
     document.body.appendChild(link);
     link.click();
-          if (link && link.parentNode) {
-            document.body.removeChild(link);
-          }
+    // Delay cleanup to avoid interfering with Next.js navigation
+    setTimeout(() => {
+      try {
+        if (link && link.parentNode) {
+          document.body.removeChild(link);
+        }
+      } catch (e) {
+        // Ignore cleanup errors
+      }
+      URL.revokeObjectURL(url);
+    }, 100);
   };
 
   // Reset everything
