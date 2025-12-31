@@ -536,16 +536,16 @@ function optimizeDescription(description, targetPx) {
 
 export async function generateSingle(req, res) {
   const topic = req.body.topic?.trim();
-  const description = req.body.description?.trim(); // Optional product description for context
+  const productDescription = req.body.description?.trim(); // Optional product description for context
   if (!topic) return res.status(400).json({ error: "Missing topic" });
 
   try {
     // Generate AI-powered SEO text
     console.log(`\n[generateSingle] ===== Starting generation for topic: "${topic}" =====`);
-    if (description) {
-      console.log(`[generateSingle] Using product description for context: "${description.substring(0, 100)}..."`);
+    if (productDescription) {
+      console.log(`[generateSingle] Using product description for context: "${productDescription.substring(0, 100)}..."`);
     }
-    const aiResult = await generateSeoText(topic, 0, description);
+    const aiResult = await generateSeoText(topic, 0, productDescription);
     console.log(`[generateSingle] AI result received:`, { 
       title: aiResult.title?.substring(0, 50), 
       description: aiResult.description?.substring(0, 50),
@@ -564,7 +564,7 @@ export async function generateSingle(req, res) {
     }
     
     let title = aiResult.title;
-    let description = aiResult.description;
+    let description = aiResult.description; // AI-generated description (different from productDescription above)
     
     // Log the raw AI response to check if AI is generating unique titles
     console.log(`[generateSingle] RAW AI TITLE (before optimization): "${title}"`);
