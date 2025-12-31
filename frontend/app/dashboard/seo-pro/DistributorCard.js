@@ -55,7 +55,8 @@ export default function DistributorCard({ onDistributorAdded }) {
     setError(null);
     try {
       const d = await apiPost("/distributors", { name: name.trim() });
-      setItems([...items, d]);
+      // Reload the full list to ensure we have the latest data
+      await loadDistributors();
       setName("");
       // Notify parent component to refresh distributor list
       if (onDistributorAdded) {
