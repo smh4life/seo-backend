@@ -958,21 +958,6 @@ export default function CategoryMatcherTest() {
           )}
 
           <div style={{ display: "flex", gap: "12px", marginTop: "24px" }}>
-            <button
-              onClick={() => setStep(1)}
-              style={{
-                padding: "12px 24px",
-                background: "#64748b",
-                color: "#fff",
-                fontWeight: 700,
-                border: "none",
-                borderRadius: "8px",
-                cursor: "pointer",
-                flex: 1
-              }}
-            >
-              Back
-            </button>
             {csvData && (
               <button
                 onClick={() => {
@@ -1084,21 +1069,6 @@ export default function CategoryMatcherTest() {
               </div>
 
               <div style={{ display: "flex", gap: "12px" }}>
-                <button
-                  onClick={() => setStep(2)}
-                  style={{
-                    padding: "12px 24px",
-                    background: "#64748b",
-                    color: "#fff",
-                    fontWeight: 700,
-                    border: "none",
-                    borderRadius: "8px",
-                    cursor: "pointer",
-                    flex: 1
-                  }}
-                >
-                  Back
-                </button>
                 <button
                   onClick={exportCsv}
                   style={{
