@@ -634,6 +634,7 @@ export default function CategoryMatcherTest() {
 
   // Export matched CSV
   const exportCsv = () => {
+    setLoading(true);
     try {
       if (!matchedData) {
         setError("Please match categories first");
@@ -704,16 +705,24 @@ export default function CategoryMatcherTest() {
     } catch (err) {
       console.error("Export error:", err);
       setError("Failed to export CSV: " + err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div style={{
-      background: "#0f172a",
-      borderRadius: "12px",
-      padding: "24px",
-      border: "1px solid #1f2937"
-    }}>
+    <>
+      <style>{`
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+      `}</style>
+      <div style={{
+        background: "#0f172a",
+        borderRadius: "12px",
+        padding: "24px",
+        border: "1px solid #1f2937"
+      }}>
       {/* Step Indicator */}
       <div style={{
         display: "flex",
@@ -832,8 +841,25 @@ export default function CategoryMatcherTest() {
               e.currentTarget.style.backgroundColor = "rgba(59, 130, 246, 0.05)";
             }}
           >
-            <div style={{ color: "#60a5fa", fontSize: "16px", fontWeight: "600", marginBottom: "8px" }}>
-              {loading ? "Loading..." : categories.length > 0 ? `${categories.length} categories loaded` : "Click to Upload Your Categories"}
+            <div style={{ color: "#60a5fa", fontSize: "16px", fontWeight: "600", marginBottom: "8px", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}>
+              {loading ? (
+                <>
+                  <span style={{
+                    display: "inline-block",
+                    width: "16px",
+                    height: "16px",
+                    border: "2px solid #60a5fa",
+                    borderTopColor: "transparent",
+                    borderRadius: "50%",
+                    animation: "spin 0.8s linear infinite"
+                  }}></span>
+                  Processing...
+                </>
+              ) : categories.length > 0 ? (
+                `✓ ${categories.length} categories loaded`
+              ) : (
+                "Click to Upload Your Categories"
+              )}
             </div>
             <div style={{ color: "#9ca3af", fontSize: "14px" }}>
               CSV or JSON format
@@ -890,7 +916,13 @@ export default function CategoryMatcherTest() {
           {categories.length > 0 && (
             <div style={{ display: "flex", gap: "12px", marginTop: "24px" }}>
               <button
-                onClick={() => setStep(2)}
+                onClick={(e) => {
+                  e.currentTarget.style.transform = "scale(0.95)";
+                  setTimeout(() => {
+                    e.currentTarget.style.transform = "scale(1)";
+                  }, 100);
+                  setStep(2);
+                }}
                 style={{
                   padding: "12px 24px",
                   background: "#4dabff",
@@ -899,13 +931,22 @@ export default function CategoryMatcherTest() {
                   border: "none",
                   borderRadius: "8px",
                   cursor: "pointer",
-                  flex: 1
+                  flex: 1,
+                  transition: "all 0.2s ease",
+                  transform: "scale(1)",
+                  boxShadow: "0 2px 4px rgba(0,0,0,0.2)"
                 }}
               >
                 Next: Upload Distributor CSV
               </button>
               <button
-                onClick={handleReset}
+                onClick={(e) => {
+                  e.currentTarget.style.transform = "scale(0.95)";
+                  setTimeout(() => {
+                    e.currentTarget.style.transform = "scale(1)";
+                  }, 100);
+                  handleReset();
+                }}
                 style={{ 
                   padding: "12px 20px", 
                   borderRadius: "10px", 
@@ -914,8 +955,9 @@ export default function CategoryMatcherTest() {
                   fontWeight: 700, 
                   border: "none", 
                   cursor: "pointer",
-                  transition: "transform 0.1s ease",
-                  boxShadow: "0 2px 4px rgba(0,0,0,0.2)"
+                  transition: "all 0.2s ease",
+                  boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
+                  transform: "scale(1)"
                 }}
               >
                 Reset All
@@ -952,8 +994,25 @@ export default function CategoryMatcherTest() {
               e.currentTarget.style.backgroundColor = "rgba(59, 130, 246, 0.05)";
             }}
           >
-            <div style={{ color: "#60a5fa", fontSize: "16px", fontWeight: "600", marginBottom: "8px" }}>
-              {loading ? "Loading..." : csvData ? `${csvData.rows.length} products loaded` : "Click to Upload Distributor CSV"}
+            <div style={{ color: "#60a5fa", fontSize: "16px", fontWeight: "600", marginBottom: "8px", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}>
+              {loading ? (
+                <>
+                  <span style={{
+                    display: "inline-block",
+                    width: "16px",
+                    height: "16px",
+                    border: "2px solid #60a5fa",
+                    borderTopColor: "transparent",
+                    borderRadius: "50%",
+                    animation: "spin 0.8s linear infinite"
+                  }}></span>
+                  Processing...
+                </>
+              ) : csvData ? (
+                `✓ ${csvData.rows.length} products loaded`
+              ) : (
+                "Click to Upload Distributor CSV"
+              )}
             </div>
             <div style={{ color: "#9ca3af", fontSize: "14px" }}>
               CSV format
@@ -996,26 +1055,58 @@ export default function CategoryMatcherTest() {
           <div style={{ display: "flex", gap: "12px", marginTop: "24px" }}>
             {csvData && (
               <button
-                onClick={() => {
+                onClick={(e) => {
+                  e.currentTarget.style.transform = "scale(0.95)";
+                  setTimeout(() => {
+                    e.currentTarget.style.transform = "scale(1)";
+                  }, 100);
                   setStep(3);
                   matchCategories();
                 }}
+                disabled={loading}
                 style={{
                   padding: "12px 24px",
-                  background: "#4dabff",
+                  background: loading ? "#64748b" : "#4dabff",
                   color: "#020617",
                   fontWeight: 700,
                   border: "none",
                   borderRadius: "8px",
-                  cursor: "pointer",
-                  flex: 1
+                  cursor: loading ? "not-allowed" : "pointer",
+                  flex: 1,
+                  transition: "all 0.2s ease",
+                  transform: "scale(1)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "8px"
                 }}
               >
-                Match Categories
+                {loading ? (
+                  <>
+                    <span style={{
+                      display: "inline-block",
+                      width: "16px",
+                      height: "16px",
+                      border: "2px solid #020617",
+                      borderTopColor: "transparent",
+                      borderRadius: "50%",
+                      animation: "spin 0.8s linear infinite"
+                    }}></span>
+                    Matching...
+                  </>
+                ) : (
+                  "Match Categories"
+                )}
               </button>
             )}
             <button
-              onClick={handleReset}
+              onClick={(e) => {
+                e.currentTarget.style.transform = "scale(0.95)";
+                setTimeout(() => {
+                  e.currentTarget.style.transform = "scale(1)";
+                }, 100);
+                handleReset();
+              }}
               style={{ 
                 padding: "12px 20px", 
                 borderRadius: "10px", 
@@ -1024,8 +1115,9 @@ export default function CategoryMatcherTest() {
                 fontWeight: 700, 
                 border: "none", 
                 cursor: "pointer",
-                transition: "transform 0.1s ease",
-                boxShadow: "0 2px 4px rgba(0,0,0,0.2)"
+                transition: "all 0.2s ease",
+                boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
+                transform: "scale(1)"
               }}
             >
               Reset All
@@ -1106,22 +1198,57 @@ export default function CategoryMatcherTest() {
 
               <div style={{ display: "flex", gap: "12px" }}>
                 <button
-                  onClick={exportCsv}
+                  onClick={(e) => {
+                    e.currentTarget.style.transform = "scale(0.95)";
+                    setTimeout(() => {
+                      e.currentTarget.style.transform = "scale(1)";
+                    }, 100);
+                    exportCsv();
+                  }}
+                  disabled={loading}
                   style={{
                     padding: "12px 24px",
-                    background: "#4dabff",
+                    background: loading ? "#64748b" : "#4dabff",
                     color: "#020617",
                     fontWeight: 700,
                     border: "none",
                     borderRadius: "8px",
-                    cursor: "pointer",
-                    flex: 1
+                    cursor: loading ? "not-allowed" : "pointer",
+                    flex: 1,
+                    transition: "all 0.2s ease",
+                    transform: "scale(1)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "8px",
+                    boxShadow: "0 2px 4px rgba(0,0,0,0.2)"
                   }}
                 >
-                  Export CSV with Categories
+                  {loading ? (
+                    <>
+                      <span style={{
+                        display: "inline-block",
+                        width: "16px",
+                        height: "16px",
+                        border: "2px solid #020617",
+                        borderTopColor: "transparent",
+                        borderRadius: "50%",
+                        animation: "spin 0.8s linear infinite"
+                      }}></span>
+                      Exporting...
+                    </>
+                  ) : (
+                    "Export CSV with Categories"
+                  )}
                 </button>
                 <button
-                  onClick={handleReset}
+                  onClick={(e) => {
+                    e.currentTarget.style.transform = "scale(0.95)";
+                    setTimeout(() => {
+                      e.currentTarget.style.transform = "scale(1)";
+                    }, 100);
+                    handleReset();
+                  }}
                   style={{ 
                     padding: "12px 20px", 
                     borderRadius: "10px", 
@@ -1130,8 +1257,9 @@ export default function CategoryMatcherTest() {
                     fontWeight: 700, 
                     border: "none", 
                     cursor: "pointer",
-                    transition: "transform 0.1s ease",
-                    boxShadow: "0 2px 4px rgba(0,0,0,0.2)"
+                    transition: "all 0.2s ease",
+                    boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
+                    transform: "scale(1)"
                   }}
                 >
                   Reset All
@@ -1142,6 +1270,7 @@ export default function CategoryMatcherTest() {
         </div>
       )}
     </div>
+    </>
   );
 }
 
