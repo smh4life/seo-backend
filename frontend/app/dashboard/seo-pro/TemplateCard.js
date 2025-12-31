@@ -15,15 +15,29 @@ export default function TemplateCard() {
 
   const loadTemplates = async () => {
     try {
+      const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+      const headers = {};
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+      
       const res = await fetch(`${API_BASE}/templates`, {
-        credentials: "include"
+        credentials: "include",
+        headers
       });
       if (res.ok) {
         const data = await res.json();
         setItems(data);
         setError(null);
       } else {
-        setError("Failed to load templates");
+        const errorData = await res.json().catch(() => ({ error: "Failed to load templates" }));
+        if (errorData.error?.includes("Not authenticated")) {
+          setError("Please log in to view templates");
+        } else if (errorData.error?.includes("Pro plan")) {
+          setError("Pro plan required");
+        } else {
+          setError(errorData.error || "Failed to load templates");
+        }
       }
     } catch (e) {
       setError("Failed to load templates");

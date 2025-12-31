@@ -2,12 +2,20 @@ const API_BASE =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
 
 export async function apiPost(path, body) {
+  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+  
+  const headers = {
+    "Content-Type": "application/json",
+  };
+  
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+
   const res = await fetch(`${API_BASE}${path}`, {
     method: "POST",
     credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers,
     body: JSON.stringify(body),
   });
 

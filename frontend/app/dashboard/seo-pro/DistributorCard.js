@@ -16,15 +16,29 @@ export default function DistributorCard({ onDistributorAdded }) {
 
   const loadDistributors = async () => {
     try {
+      const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+      const headers = {};
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+      
       const res = await fetch(`${API_BASE}/distributors`, {
-        credentials: "include"
+        credentials: "include",
+        headers
       });
       if (res.ok) {
         const data = await res.json();
         setItems(data);
         setError(null);
       } else {
-        setError("Failed to load distributors");
+        const errorData = await res.json().catch(() => ({ error: "Failed to load distributors" }));
+        if (errorData.error?.includes("Not authenticated")) {
+          setError("Please log in to view distributors");
+        } else if (errorData.error?.includes("Pro plan")) {
+          setError("Pro plan required");
+        } else {
+          setError(errorData.error || "Failed to load distributors");
+        }
       }
     } catch (e) {
       setError("Failed to load distributors");
@@ -60,9 +74,16 @@ export default function DistributorCard({ onDistributorAdded }) {
 
   async function remove(id) {
     try {
+      const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+      const headers = {};
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+      
       await fetch(`${API_BASE}/distributors/${id}`, {
         method: "DELETE",
-        credentials: "include"
+        credentials: "include",
+        headers
       });
       setItems(items.filter(d => d.id !== id));
       setConfirm(null);
