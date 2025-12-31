@@ -678,30 +678,6 @@ export default function CategoryMatcherTest() {
       padding: "24px",
       border: "1px solid #1f2937"
     }}>
-      {/* Reset Button */}
-      <div style={{
-        display: "flex",
-        justifyContent: "flex-end",
-        marginBottom: "16px"
-      }}>
-        <button
-          onClick={handleReset}
-          style={{ 
-            padding: "12px 20px", 
-            borderRadius: "10px", 
-            background: "#4dabff",
-            color: "#020617", 
-            fontWeight: 700, 
-            border: "none", 
-            cursor: "pointer",
-            transition: "transform 0.1s ease",
-            boxShadow: "0 2px 4px rgba(0,0,0,0.2)"
-          }}
-        >
-          Reset All
-        </button>
-      </div>
-
       {/* Step Indicator */}
       <div style={{
         display: "flex",
@@ -1000,6 +976,22 @@ export default function CategoryMatcherTest() {
                 Match Categories
               </button>
             )}
+            <button
+              onClick={handleReset}
+              style={{ 
+                padding: "12px 20px", 
+                borderRadius: "10px", 
+                background: "#4dabff",
+                color: "#020617", 
+                fontWeight: 700, 
+                border: "none", 
+                cursor: "pointer",
+                transition: "transform 0.1s ease",
+                boxShadow: "0 2px 4px rgba(0,0,0,0.2)"
+              }}
+            >
+              Reset All
+            </button>
           </div>
         </div>
       )}
