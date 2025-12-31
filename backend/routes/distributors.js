@@ -1,5 +1,6 @@
 import express from "express";
-import { optionalAuth } from "../middleware/auth.js";
+import { requireAuth } from "../middleware/auth.js";
+import { requirePlan } from "../middleware/requirePlan.js";
 import {
   listDistributors,
   createDistributor,
@@ -8,8 +9,9 @@ import {
 
 const router = express.Router();
 
-router.get("/", optionalAuth, listDistributors);
-router.post("/", optionalAuth, createDistributor);
-router.delete("/:id", optionalAuth, deleteDistributor);
+// All distributor routes require Pro plan
+router.get("/", requireAuth, requirePlan("pro"), listDistributors);
+router.post("/", requireAuth, requirePlan("pro"), createDistributor);
+router.delete("/:id", requireAuth, requirePlan("pro"), deleteDistributor);
 
 export default router;

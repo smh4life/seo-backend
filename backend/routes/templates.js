@@ -1,5 +1,6 @@
 import express from "express";
-import { optionalAuth } from "../middleware/auth.js";
+import { requireAuth } from "../middleware/auth.js";
+import { requirePlan } from "../middleware/requirePlan.js";
 import {
   listTemplates,
   createTemplate,
@@ -8,8 +9,9 @@ import {
 
 const router = express.Router();
 
-router.get("/", optionalAuth, listTemplates);
-router.post("/", optionalAuth, createTemplate);
-router.delete("/:id", optionalAuth, deleteTemplate);
+// All template routes require Pro plan
+router.get("/", requireAuth, requirePlan("pro"), listTemplates);
+router.post("/", requireAuth, requirePlan("pro"), createTemplate);
+router.delete("/:id", requireAuth, requirePlan("pro"), deleteTemplate);
 
 export default router;

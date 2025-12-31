@@ -2,10 +2,7 @@ import Distributor from "../models/Distributor.schema.js";
 
 export async function listDistributors(req, res) {
   try {
-    const userId = req.user?.id;
-    if (!userId) {
-      return res.json([]); // Return empty if not authenticated
-    }
+    const userId = req.user.id; // Already authenticated by middleware
     const distributors = await Distributor.find({ userId });
     // Convert MongoDB _id to id for frontend compatibility
     const formatted = distributors.map(d => ({
@@ -24,10 +21,7 @@ export async function listDistributors(req, res) {
 
 export async function createDistributor(req, res) {
   try {
-    const userId = req.user?.id;
-    if (!userId) {
-      return res.status(401).json({ error: "Authentication required" });
-    }
+    const userId = req.user.id; // Already authenticated by middleware
 
     const { name, columnMap, schema } = req.body;
     if (!name) return res.status(400).json({ error: "Name required" });
@@ -56,10 +50,7 @@ export async function createDistributor(req, res) {
 
 export async function deleteDistributor(req, res) {
   try {
-    const userId = req.user?.id;
-    if (!userId) {
-      return res.status(401).json({ error: "Authentication required" });
-    }
+    const userId = req.user.id; // Already authenticated by middleware
 
     const { id } = req.params;
     const result = await Distributor.deleteOne({ _id: id, userId });

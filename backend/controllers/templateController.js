@@ -2,10 +2,7 @@ import Template from "../models/Template.schema.js";
 
 export async function listTemplates(req, res) {
   try {
-    const userId = req.user?.id;
-    if (!userId) {
-      return res.json([]); // Return empty if not authenticated
-    }
+    const userId = req.user.id; // Already authenticated by middleware
     const templates = await Template.find({ userId });
     // Convert MongoDB _id to id for frontend compatibility
     const formatted = templates.map(t => ({
@@ -24,10 +21,7 @@ export async function listTemplates(req, res) {
 
 export async function createTemplate(req, res) {
   try {
-    const userId = req.user?.id;
-    if (!userId) {
-      return res.status(401).json({ error: "Authentication required" });
-    }
+    const userId = req.user.id; // Already authenticated by middleware
 
     const { name, type, rules } = req.body;
     if (!name || !type) {
@@ -58,10 +52,7 @@ export async function createTemplate(req, res) {
 
 export async function deleteTemplate(req, res) {
   try {
-    const userId = req.user?.id;
-    if (!userId) {
-      return res.status(401).json({ error: "Authentication required" });
-    }
+    const userId = req.user.id; // Already authenticated by middleware
 
     const { id } = req.params;
     const result = await Template.deleteOne({ _id: id, userId });
