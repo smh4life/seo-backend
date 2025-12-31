@@ -199,12 +199,18 @@ export default function BatchGeneratorCard() {
       stateRef.current.results = allResults;
     } catch (err) {
       console.error("Batch generation error:", err);
-      let errorMessage = "Batch generation failed. Please try again.";
+      let errorMessage = "Unable to generate SEO content. Please try again.";
       
-      if (err.message) {
+      if (err.message?.includes("free limit") || err.message?.includes("5 free")) {
         errorMessage = err.message;
+      } else if (err.message?.includes("401") || err.message?.includes("Not authenticated")) {
+        errorMessage = "Please log in to generate SEO content.";
+      } else if (err.message?.includes("403") || err.message?.includes("plan")) {
+        errorMessage = "Pro plan required.";
+      } else if (err.message?.includes("429") || err.message?.includes("rate limit")) {
+        errorMessage = "Too many requests. Please wait a moment and try again.";
       } else if (err instanceof TypeError && err.message.includes("fetch")) {
-        errorMessage = "Cannot connect to server. Please make sure the backend server is running on http://localhost:3000";
+        errorMessage = "Unable to connect to server. Please try again later.";
       }
       
       setError(errorMessage);
@@ -403,10 +409,17 @@ export default function BatchGeneratorCard() {
               a.download = `seo-batch-${new Date().getTime()}.csv`;
               document.body.appendChild(a);
               a.click();
-              if (a && a.parentNode) {
-                document.body.removeChild(a);
-              }
-              window.URL.revokeObjectURL(url);
+              // Delay cleanup to avoid interfering with Next.js navigation
+              setTimeout(() => {
+                try {
+                  if (a && a.parentNode) {
+                    document.body.removeChild(a);
+                  }
+                } catch (e) {
+                  // Ignore cleanup errors
+                }
+                window.URL.revokeObjectURL(url);
+              }, 100);
             }}
             style={{
               padding: "12px 20px",
