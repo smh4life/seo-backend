@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
 
@@ -11,6 +11,65 @@ export default function CategoryMatcherTest() {
   const [matchedData, setMatchedData] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [savedCategorySets, setSavedCategorySets] = useState([]);
+  const [selectedCategorySet, setSelectedCategorySet] = useState("");
+
+  // Load saved category sets from localStorage
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("categoryMatcher_savedSets");
+      if (saved) {
+        const sets = JSON.parse(saved);
+        setSavedCategorySets(sets);
+      }
+    } catch (e) {
+      console.error("Failed to load saved category sets:", e);
+    }
+  }, []);
+
+  // Save categories to localStorage
+  const saveCategorySet = (name, categoryData) => {
+    try {
+      const sets = savedCategorySets || [];
+      const newSet = {
+        id: Date.now().toString(),
+        name: name || `Category Set ${new Date().toLocaleDateString()}`,
+        categories: categoryData,
+        createdAt: new Date().toISOString()
+      };
+      const updated = [...sets, newSet];
+      setSavedCategorySets(updated);
+      localStorage.setItem("categoryMatcher_savedSets", JSON.stringify(updated));
+      return newSet.id;
+    } catch (e) {
+      console.error("Failed to save category set:", e);
+      return null;
+    }
+  };
+
+  // Load category set from saved sets
+  const loadCategorySet = (setId) => {
+    const set = savedCategorySets.find(s => s.id === setId);
+    if (set) {
+      setCategories(set.categories);
+      setSelectedCategorySet(setId);
+      setError(null);
+      alert(`Loaded "${set.name}" with ${set.categories.length} categories!`);
+    }
+  };
+
+  // Delete saved category set
+  const deleteCategorySet = (setId) => {
+    if (window.confirm("Are you sure you want to delete this saved category set?")) {
+      const updated = savedCategorySets.filter(s => s.id !== setId);
+      setSavedCategorySets(updated);
+      localStorage.setItem("categoryMatcher_savedSets", JSON.stringify(updated));
+      if (selectedCategorySet === setId) {
+        setSelectedCategorySet("");
+        setCategories([]);
+      }
+    }
+  };
 
   // Normalize category path to use " > " format
   const normalizePath = (path) => {
@@ -263,6 +322,16 @@ export default function CategoryMatcherTest() {
 
         setCategories(categoryData);
         setError(null);
+        
+        // Auto-save the category set
+        const setName = prompt(`Enter a name for this category set (or leave blank for auto-name):`, `Category Set ${new Date().toLocaleDateString()}`);
+        if (setName !== null) { // User didn't cancel
+          const setId = saveCategorySet(setName, categoryData);
+          if (setId) {
+            setSelectedCategorySet(setId);
+          }
+        }
+        
         alert(`Successfully loaded ${categoryData.length} categories!`);
       } catch (err) {
         setError(err.message || "Failed to load categories");
@@ -644,9 +713,10 @@ export default function CategoryMatcherTest() {
       setMatchedData(null);
       setError(null);
       setLoading(false);
+      setSelectedCategorySet("");
       // Reset file inputs
-      const categoryInput = document.getElementById("categoryFileInput");
-      const csvInput = document.getElementById("distributorCsvInput");
+      const categoryInput = document.getElementById("category-upload");
+      const csvInput = document.getElementById("csv-upload");
       if (categoryInput) categoryInput.value = "";
       if (csvInput) csvInput.value = "";
     }
@@ -839,8 +909,78 @@ export default function CategoryMatcherTest() {
         <div>
           <h2 style={{ color: "#ffffff", marginBottom: "16px" }}>Step 1: Import Your Categories</h2>
           <p style={{ color: "#9ca3af", marginBottom: "24px" }}>
-            Upload a CSV or JSON file with your category structure. Format: Category Path, Keywords, Parent Path
+            Select a previously saved category set or upload a new CSV/JSON file.
           </p>
+
+          {/* Saved Category Sets Dropdown */}
+          {savedCategorySets.length > 0 && (
+            <div style={{ marginBottom: "24px" }}>
+              <label style={{ 
+                display: "block", 
+                color: "#ffffff", 
+                fontSize: "14px", 
+                fontWeight: "600", 
+                marginBottom: "8px" 
+              }}>
+                Or Select a Saved Category Set:
+              </label>
+              <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                <select
+                  value={selectedCategorySet}
+                  onChange={(e) => {
+                    if (e.target.value) {
+                      loadCategorySet(e.target.value);
+                    }
+                  }}
+                  style={{
+                    flex: 1,
+                    padding: "12px 16px",
+                    background: "#0f172a",
+                    border: "1px solid #1f2937",
+                    borderRadius: "8px",
+                    color: "#ffffff",
+                    fontSize: "14px",
+                    cursor: "pointer"
+                  }}
+                >
+                  <option value="">-- Select a saved category set --</option>
+                  {savedCategorySets.map(set => (
+                    <option key={set.id} value={set.id}>
+                      {set.name} ({set.categories.length} categories)
+                    </option>
+                  ))}
+                </select>
+                {selectedCategorySet && (
+                  <button
+                    onClick={() => deleteCategorySet(selectedCategorySet)}
+                    style={{
+                      padding: "12px 16px",
+                      background: "#dc2626",
+                      color: "#ffffff",
+                      border: "none",
+                      borderRadius: "8px",
+                      cursor: "pointer",
+                      fontSize: "14px",
+                      fontWeight: "600"
+                    }}
+                    onMouseOver={(e) => e.target.style.backgroundColor = "#ef4444"}
+                    onMouseOut={(e) => e.target.style.backgroundColor = "#dc2626"}
+                  >
+                    Delete
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+
+          <div style={{ 
+            textAlign: "center", 
+            color: "#9ca3af", 
+            marginBottom: "16px",
+            fontSize: "14px"
+          }}>
+            OR
+          </div>
           
           <div
             onClick={() => document.getElementById("category-upload")?.click()}
@@ -882,7 +1022,7 @@ export default function CategoryMatcherTest() {
               )}
             </div>
             <div style={{ color: "#9ca3af", fontSize: "14px" }}>
-              CSV or JSON format
+              Upload new CSV or JSON file
             </div>
           </div>
           <input
