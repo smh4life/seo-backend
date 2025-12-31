@@ -620,7 +620,7 @@ Product Name 3`}
             lineHeight: "1.8"
           }}>
             <li style={{ marginBottom: "6px" }}><strong style={{ color: "#ffffff" }}>name</strong> - Category name</li>
-            <li style={{ marginBottom: "6px" }}><strong style={{ color: "#ffffff" }}>urlSlug</strong> - Category path (e.g., "lubes/water-based")</li>
+            <li style={{ marginBottom: "6px" }}><strong style={{ color: "#ffffff" }}>urlSlug</strong> - Category path (e.g., "electronics/smartphones")</li>
             <li style={{ marginBottom: "6px" }}><strong style={{ color: "#ffffff" }}>parentCategory</strong> - Parent category name</li>
             <li style={{ marginBottom: "6px" }}><strong style={{ color: "#ffffff" }}>description</strong> - Category description (used for keyword extraction)</li>
             <li style={{ marginBottom: "6px" }}><strong style={{ color: "#ffffff" }}>metaKeywords</strong> - Additional keywords (optional)</li>
@@ -651,7 +651,7 @@ Product Name 3`}
               <strong style={{ color: "#ffffff" }}>Path Segments:</strong> Matches category path segments to product text
             </li>
             <li style={{ marginBottom: "6px" }}>
-              <strong style={{ color: "#ffffff" }}>Fuzzy Matching:</strong> Handles common variations (e.g., "lube" vs "lubricant")
+              <strong style={{ color: "#ffffff" }}>Fuzzy Matching:</strong> Handles common variations (e.g., "phone" vs "smartphone", "shirt" vs "t-shirt")
             </li>
             <li style={{ marginBottom: "6px" }}>
               <strong style={{ color: "#ffffff" }}>Confidence Score:</strong> Each match includes a confidence percentage (80%+ is high confidence)
