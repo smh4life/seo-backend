@@ -12,6 +12,19 @@ export default function CategoryMatcherTest() {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
+  // Normalize category path to use " > " format
+  const normalizePath = (path) => {
+    if (!path) return "";
+    // Replace various separators with " > "
+    return path
+      .replace(/\//g, " > ")
+      .replace(/\|/g, " > ")
+      .replace(/\\/g, " > ")
+      .replace(/\s*>\s*/g, " > ") // Normalize existing " > " with varying spaces
+      .replace(/\s+/g, " ") // Normalize multiple spaces
+      .trim();
+  };
+
   // Step 1: Import Categories
   const handleCategoryFileUpload = (e) => {
     const file = e.target.files?.[0];
@@ -146,11 +159,8 @@ export default function CategoryMatcherTest() {
             } 
             // Priority 2: Build from parent + name
             else if (parentCat && name) {
-              // Handle different separators in parentCategory
-              const separator = parentCat.includes(">") ? " > " : 
-                              parentCat.includes("/") ? "/" :
-                              parentCat.includes("|") ? "|" : " > ";
-              fullPath = `${parentCat}${separator}${name}`;
+              // Always use " > " separator
+              fullPath = `${parentCat} > ${name}`;
             } 
             // Priority 3: Just use name
             else if (name) {
@@ -166,6 +176,9 @@ export default function CategoryMatcherTest() {
                 }
               }
             }
+            
+            // Normalize path to use " > " format
+            fullPath = normalizePath(fullPath);
 
             // Extract keywords from multiple sources
             const keywords = [];
@@ -225,20 +238,27 @@ export default function CategoryMatcherTest() {
             const uniqueKeywords = [...new Set(keywords)].filter(k => k.length > 2);
 
             return {
-              path: fullPath,
+              path: normalizePath(fullPath),
               keywords: uniqueKeywords,
-              parentPath: parentCat || ""
+              parentPath: normalizePath(parentCat || "")
             };
           }).filter(cat => cat.path);
         } else {
           const json = JSON.parse(text);
+          let jsonCategories = [];
           if (Array.isArray(json)) {
-            categoryData = json;
+            jsonCategories = json;
           } else if (json.categories && Array.isArray(json.categories)) {
-            categoryData = json.categories;
+            jsonCategories = json.categories;
           } else {
             throw new Error("JSON must be an array or have a 'categories' array");
           }
+          // Normalize paths from JSON
+          categoryData = jsonCategories.map(cat => ({
+            ...cat,
+            path: normalizePath(cat.path || ""),
+            parentPath: normalizePath(cat.parentPath || "")
+          })).filter(cat => cat.path);
         }
 
         setCategories(categoryData);
@@ -581,16 +601,18 @@ export default function CategoryMatcherTest() {
       
       const updatedRows = csvData.rows.map((row, index) => {
         const match = matches.find(m => m.productIndex === index);
+        // Normalize the category path to use " > " format
+        const normalizedPath = match?.suggestedCategory ? normalizePath(match.suggestedCategory) : "";
         const newRow = {
           ...row,
-          categoryPath: match?.suggestedCategory || "",
+          categoryPath: normalizedPath,
           matchConfidence: match?.confidence || 0
         };
         
         // Replace the distributor's "Category" column with the matched categoryPath
         // This ensures imports use your categories instead of distributor categories
         if (categoryColumnName) {
-          newRow[categoryColumnName] = match?.suggestedCategory || "";
+          newRow[categoryColumnName] = normalizedPath;
         }
         
         return newRow;
