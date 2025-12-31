@@ -1,4 +1,5 @@
 import express from "express";
+import { optionalAuth } from "../middleware/auth.js";
 import {
   listTemplates,
   createTemplate,
@@ -7,8 +8,8 @@ import {
 
 const router = express.Router();
 
-router.get("/", listTemplates);
-router.post("/", createTemplate);
-router.delete("/:id", deleteTemplate);
+router.get("/", optionalAuth, listTemplates);
+router.post("/", optionalAuth, createTemplate);
+router.delete("/:id", optionalAuth, deleteTemplate);
 
 export default router;

@@ -1,4 +1,5 @@
 import express from "express";
+import { optionalAuth } from "../middleware/auth.js";
 import {
   listDistributors,
   createDistributor,
@@ -7,8 +8,8 @@ import {
 
 const router = express.Router();
 
-router.get("/", listDistributors);
-router.post("/", createDistributor);
-router.delete("/:id", deleteDistributor);
+router.get("/", optionalAuth, listDistributors);
+router.post("/", optionalAuth, createDistributor);
+router.delete("/:id", optionalAuth, deleteDistributor);
 
 export default router;

@@ -1,27 +1,76 @@
-let distributors = [];
+import Distributor from "../models/Distributor.schema.js";
 
-export function listDistributors(req, res) {
-  res.json(distributors);
+export async function listDistributors(req, res) {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.json([]); // Return empty if not authenticated
+    }
+    const distributors = await Distributor.find({ userId });
+    // Convert MongoDB _id to id for frontend compatibility
+    const formatted = distributors.map(d => ({
+      id: d._id.toString(),
+      name: d.name,
+      columnMap: d.columnMap,
+      schema: d.schema,
+      createdAt: d.createdAt
+    }));
+    res.json(formatted);
+  } catch (error) {
+    console.error("List distributors error:", error);
+    res.status(500).json({ error: "Failed to load distributors" });
+  }
 }
 
-export function createDistributor(req, res) {
-  const { name, columnMap, schema } = req.body;
-  if (!name) return res.status(400).json({ error: "Name required" });
+export async function createDistributor(req, res) {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ error: "Authentication required" });
+    }
 
-  const distributor = {
-    id: Math.random().toString(36).slice(2),
-    name,
-    columnMap: columnMap || {},
-    schema: schema || {},
-    createdAt: new Date()
-  };
+    const { name, columnMap, schema } = req.body;
+    if (!name) return res.status(400).json({ error: "Name required" });
 
-  distributors.push(distributor);
-  res.json(distributor);
+    const distributor = new Distributor({
+      userId,
+      name,
+      columnMap: columnMap || {},
+      schema: schema || {}
+    });
+
+    await distributor.save();
+    
+    res.json({
+      id: distributor._id.toString(),
+      name: distributor.name,
+      columnMap: distributor.columnMap,
+      schema: distributor.schema,
+      createdAt: distributor.createdAt
+    });
+  } catch (error) {
+    console.error("Create distributor error:", error);
+    res.status(500).json({ error: "Failed to create distributor" });
+  }
 }
 
-export function deleteDistributor(req, res) {
-  const { id } = req.params;
-  distributors = distributors.filter(d => d.id !== id);
-  res.json({ success: true });
+export async function deleteDistributor(req, res) {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ error: "Authentication required" });
+    }
+
+    const { id } = req.params;
+    const result = await Distributor.deleteOne({ _id: id, userId });
+    
+    if (result.deletedCount === 0) {
+      return res.status(404).json({ error: "Distributor not found" });
+    }
+    
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Delete distributor error:", error);
+    res.status(500).json({ error: "Failed to delete distributor" });
+  }
 }
