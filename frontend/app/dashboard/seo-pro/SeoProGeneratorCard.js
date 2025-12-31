@@ -331,9 +331,15 @@ const SeoProGeneratorCard = forwardRef(function SeoProGeneratorCard(props, ref) 
             console.log(`[SEO-Pro] Processing: "${productName}" with description: "${productDescription?.substring(0, 50)}..."`);
 
             // Send both product name and description to get more accurate, unique content
+            const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+            const headers = { "Content-Type": "application/json" };
+            if (token) {
+              headers["Authorization"] = `Bearer ${token}`;
+            }
+            
             const res = await fetch(`${API_BASE}/generate/single`, {
               method: "POST",
-              headers: { "Content-Type": "application/json" },
+              headers,
               credentials: "include",
               body: JSON.stringify({ 
                 topic: productName.trim(),
