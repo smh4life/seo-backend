@@ -20,6 +20,7 @@ if (result.error) {
   console.log("   STRIPE_PRICE_ID_SINGLE from process.env:", process.env.STRIPE_PRICE_ID_SINGLE || "NOT FOUND");
   console.log("   STRIPE_PRICE_ID_BATCH from process.env:", process.env.STRIPE_PRICE_ID_BATCH || "NOT FOUND");
   console.log("   STRIPE_PRICE_ID_PRO from process.env:", process.env.STRIPE_PRICE_ID_PRO || "NOT FOUND");
+  console.log("   STRIPE_PRICE_ID_CATEGORY_MATCHER from process.env:", process.env.STRIPE_PRICE_ID_CATEGORY_MATCHER || "NOT FOUND");
 }
 
 export const PLANS = {
@@ -45,16 +46,19 @@ export const PLANS = {
 // You'll need to replace these with your actual Stripe Price IDs
 const singlePrice = process.env.STRIPE_PRICE_ID_SINGLE || "price_xxxxx";
 const batchPrice = process.env.STRIPE_PRICE_ID_BATCH || "price_xxxxx";
+const categoryMatcherPrice = process.env.STRIPE_PRICE_ID_CATEGORY_MATCHER || "price_xxxxx";
 const proPrice = process.env.STRIPE_PRICE_ID_PRO || "price_xxxxx";
 
 // Debug logging
 console.log("🔍 Stripe Price IDs loaded:");
 console.log("   SINGLE:", singlePrice);
 console.log("   BATCH:", batchPrice);
+console.log("   CATEGORY_MATCHER:", categoryMatcherPrice);
 console.log("   PRO:", proPrice);
 
 export const STRIPE_PRICE_IDS = {
   single: singlePrice, // $9/mo
   batch: batchPrice, // $19/mo
+  categoryMatcher: categoryMatcherPrice, // $29/mo
   pro: proPrice // $39/mo
 };

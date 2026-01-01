@@ -6,13 +6,19 @@ import { getToken } from "../../../lib/authClient";
 export default function BillingPage() {
   async function checkout(plan) {
     const token = getToken();
+    // Convert plan name to backend format
+    let planKey = plan.toLowerCase();
+    if (planKey === "category matcher") {
+      planKey = "categoryMatcher";
+    }
+    
     const res = await fetch("http://localhost:3000/billing/checkout", {
       method: "POST",
       headers: { 
         "Content-Type": "application/json",
         ...(token && { Authorization: `Bearer ${token}` })
       },
-      body: JSON.stringify({ plan })
+      body: JSON.stringify({ plan: planKey })
     });
     
     if (!res.ok) {
@@ -52,6 +58,12 @@ export default function BillingPage() {
           plan="Batch"
           price="$19/mo"
           features={["Single", "Batch", "CSV"]}
+          onSelect={checkout}
+        />
+        <PlanCard
+          plan="Category Matcher"
+          price="$29/mo"
+          features={["Category Matching", "Import Categories", "Auto-Match Products", "Export CSV"]}
           onSelect={checkout}
         />
         <PlanCard

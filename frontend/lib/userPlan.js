@@ -67,6 +67,12 @@ export function hasPlanAccess(feature) {
       seoPro: false,
       categoryMatcher: false
     },
+    categoryMatcher: {
+      single: false,
+      batch: false,
+      seoPro: false,
+      categoryMatcher: true
+    },
     pro: {
       single: true,
       batch: true,

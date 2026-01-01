@@ -36,7 +36,7 @@ router.post("/checkout", async (req, res) => {
     }
 
     // Validate plan name
-    const validPlans = ["single", "batch", "pro"];
+    const validPlans = ["single", "batch", "categoryMatcher", "pro"];
     if (!validPlans.includes(plan.toLowerCase())) {
       return res.status(400).json({ error: "Invalid plan" });
     }
@@ -176,6 +176,7 @@ router.post("/webhook", express.raw({ type: "application/json" }), async (req, r
           
           if (priceId === STRIPE_PRICE_IDS.single) plan = "single";
           else if (priceId === STRIPE_PRICE_IDS.batch) plan = "batch";
+          else if (priceId === STRIPE_PRICE_IDS.categoryMatcher) plan = "categoryMatcher";
           else if (priceId === STRIPE_PRICE_IDS.pro) plan = "pro";
 
           await User.findByIdAndUpdate(user._id, {
