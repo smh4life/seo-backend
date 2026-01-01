@@ -79,96 +79,149 @@ export default function DashboardPage() {
           marginRight: "20px"
         }}
       >
-        {/* SINGLE */}
-        <div style={cardStyle}>
-          <h2 style={cardTitle}>Single Generator</h2>
-          <p style={cardText}>
-            Generate SEO metadata for a single page at a time. Ideal for blog
-            posts, landing pages, service pages, and individual products.
-          </p>
-          <ul style={cardList}>
-            <li>Pixel-accurate title & description</li>
-            <li>Manual review and refinement</li>
-            <li>Best for focused, one-off pages</li>
-          </ul>
-          <Link href="/dashboard/single" style={cardButton}>
-            Open Single Generator →
-          </Link>
-        </div>
+        {/* SINGLE - Only show if user doesn't have Batch or Pro (since they include Single) */}
+        {(!isAuthenticated || (!hasPlanAccess("batch") && !hasPlanAccess("seoPro"))) && (
+          <div style={cardStyle}>
+            <h2 style={cardTitle}>Single Generator</h2>
+            <p style={cardText}>
+              Generate SEO metadata for a single page at a time. Ideal for blog
+              posts, landing pages, service pages, and individual products.
+            </p>
+            <ul style={cardList}>
+              <li>Pixel-accurate title & description</li>
+              <li>Manual review and refinement</li>
+              <li>Best for focused, one-off pages</li>
+            </ul>
+            {!isAuthenticated ? (
+              <div>
+                <p style={{ color: "#ef4444", marginBottom: "12px", fontSize: "14px" }}>
+                  ⚠️ Sign up required
+                </p>
+                <Link href="/register" style={cardButton}>
+                  Sign Up to Access →
+                </Link>
+              </div>
+            ) : (
+              <Link href="/dashboard/single" style={cardButton}>
+                Open Single Generator →
+              </Link>
+            )}
+          </div>
+        )}
 
-        {/* BATCH */}
-        <div style={cardStyle}>
-          <h2 style={cardTitle}>Batch Generator</h2>
-          <p style={cardText}>
-            Create SEO metadata for multiple pages at once using CSV uploads.
-            Designed for scale and speed.
-          </p>
-          <ul style={cardList}>
-            <li>Upload and map CSV columns</li>
-            <li>Bulk SEO generation</li>
-            <li>Export results instantly</li>
-          </ul>
-          {!isAuthenticated ? (
-            <div>
-              <p style={{ color: "#ef4444", marginBottom: "12px", fontSize: "14px" }}>
-                ⚠️ Sign up required
-              </p>
-              <Link href="/register" style={cardButton}>
-                Sign Up to Access →
-              </Link>
-            </div>
-          ) : !hasPlanAccess("batch") ? (
-            <div>
-              <p style={{ color: "#ef4444", marginBottom: "12px", fontSize: "14px" }}>
-                ⚠️ Batch plan required
-              </p>
-              <Link href="/dashboard/billing" style={cardButton}>
-                Upgrade to Batch Plan →
-              </Link>
-            </div>
-          ) : (
+        {/* BATCH - Only show if user has Batch but not Pro (since Pro includes Batch) */}
+        {isAuthenticated && hasPlanAccess("batch") && !hasPlanAccess("seoPro") && (
+          <div style={cardStyle}>
+            <h2 style={cardTitle}>Batch Generator</h2>
+            <p style={cardText}>
+              Create SEO metadata for multiple pages at once using CSV uploads.
+              Designed for scale and speed. Includes all Single Generator features.
+            </p>
+            <ul style={cardList}>
+              <li>Upload and map CSV columns</li>
+              <li>Bulk SEO generation</li>
+              <li>Export results instantly</li>
+              <li>Includes Single Generator</li>
+            </ul>
             <Link href="/dashboard/batch" style={cardButton}>
               Open Batch Generator →
             </Link>
-          )}
-        </div>
+          </div>
+        )}
 
-        {/* SEO PRO */}
-        <div style={cardStyle}>
-          <h2 style={cardTitle}>SEO-Pro</h2>
-          <p style={cardText}>
-            Advanced SEO workflows for distributors, product catalogs, and
-            structured data automation.
-          </p>
-          <ul style={cardList}>
-            <li>Distributor & template management</li>
-            <li>JSON-LD & internal links</li>
-            <li>Built for large-scale SEO systems</li>
-          </ul>
-          {!isAuthenticated ? (
-            <div>
-              <p style={{ color: "#ef4444", marginBottom: "12px", fontSize: "14px" }}>
-                ⚠️ Sign up required
-              </p>
-              <Link href="/register" style={cardButton}>
-                Sign Up to Access →
-              </Link>
-            </div>
-          ) : !hasPlanAccess("seoPro") ? (
-            <div>
-              <p style={{ color: "#ef4444", marginBottom: "12px", fontSize: "14px" }}>
-                ⚠️ Pro plan required
-              </p>
-              <Link href="/dashboard/billing" style={cardButton}>
-                Upgrade to Pro Plan →
-              </Link>
-            </div>
-          ) : (
+        {/* SEO PRO - Only show if user has Pro plan */}
+        {isAuthenticated && hasPlanAccess("seoPro") && (
+          <div style={cardStyle}>
+            <h2 style={cardTitle}>SEO-Pro</h2>
+            <p style={cardText}>
+              Advanced SEO workflows for distributors, product catalogs, and
+              structured data automation. Includes all Single and Batch features.
+            </p>
+            <ul style={cardList}>
+              <li>Distributor & template management</li>
+              <li>JSON-LD & internal links</li>
+              <li>Built for large-scale SEO systems</li>
+              <li>Includes Single & Batch</li>
+            </ul>
             <Link href="/dashboard/seo-pro" style={cardButton}>
               Open SEO-Pro →
             </Link>
-          )}
-        </div>
+          </div>
+        )}
+
+        {/* CATEGORY MATCHER - Only show if user has Pro plan */}
+        {isAuthenticated && hasPlanAccess("categoryMatcher") && (
+          <div style={cardStyle}>
+            <h2 style={cardTitle}>Category Matcher</h2>
+            <p style={cardText}>
+              Automatically match products from distributor CSVs to your custom
+              category structure. Save hours of manual categorization.
+            </p>
+            <ul style={cardList}>
+              <li>Import your category structure</li>
+              <li>Auto-match products with AI</li>
+              <li>Export ready-to-import CSV</li>
+            </ul>
+            <Link href="/test-category-matcher" style={cardButton}>
+              Open Category Matcher →
+            </Link>
+          </div>
+        )}
+
+        {/* UPGRADE CARDS - Show upgrade options if user doesn't have access */}
+        {isAuthenticated && !hasPlanAccess("batch") && !hasPlanAccess("seoPro") && (
+          <div style={cardStyle}>
+            <h2 style={cardTitle}>Batch Generator</h2>
+            <p style={cardText}>
+              Upgrade to process multiple pages at once with CSV uploads.
+              Includes all Single Generator features.
+            </p>
+            <ul style={cardList}>
+              <li>Upload and map CSV columns</li>
+              <li>Bulk SEO generation</li>
+              <li>Export results instantly</li>
+            </ul>
+            <Link href="/dashboard/billing" style={cardButton}>
+              Upgrade to Batch Plan →
+            </Link>
+          </div>
+        )}
+
+        {isAuthenticated && !hasPlanAccess("seoPro") && (
+          <div style={cardStyle}>
+            <h2 style={cardTitle}>SEO-Pro</h2>
+            <p style={cardText}>
+              Advanced workflows for distributors, templates, and automation.
+              Includes all Single and Batch features.
+            </p>
+            <ul style={cardList}>
+              <li>Distributor & template management</li>
+              <li>JSON-LD & internal links</li>
+              <li>Built for large-scale SEO systems</li>
+            </ul>
+            <Link href="/dashboard/billing" style={cardButton}>
+              Upgrade to Pro Plan →
+            </Link>
+          </div>
+        )}
+
+        {isAuthenticated && !hasPlanAccess("categoryMatcher") && (
+          <div style={cardStyle}>
+            <h2 style={cardTitle}>Category Matcher</h2>
+            <p style={cardText}>
+              Automatically match products to your category structure.
+              Save hours of manual categorization.
+            </p>
+            <ul style={cardList}>
+              <li>Import your category structure</li>
+              <li>Auto-match products with AI</li>
+              <li>Export ready-to-import CSV</li>
+            </ul>
+            <Link href="/dashboard/billing" style={cardButton}>
+              Upgrade to Pro Plan →
+            </Link>
+          </div>
+        )}
 
 {/* QUICK ACTIONS */}
 <div style={cardStyle}>
@@ -179,18 +232,28 @@ export default function DashboardPage() {
 
   <ul style={cardList}>
     <li>Last run: Today</li>
-    <li>Mode: Single Generator</li>
     <li>Status: Ready</li>
   </ul>
 
   <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
-    <Link href="/dashboard/single" style={cardButton}>Run Single →</Link>
-    {!isAuthenticated ? (
-      <Link href="/register" style={cardButton}>Sign Up for Batch →</Link>
-    ) : !hasPlanAccess("batch") ? (
-      <Link href="/dashboard/billing" style={cardButton}>Upgrade for Batch →</Link>
-    ) : (
+    {/* Show Single only if user doesn't have Batch/Pro */}
+    {(!isAuthenticated || (!hasPlanAccess("batch") && !hasPlanAccess("seoPro"))) && (
+      <Link href="/dashboard/single" style={cardButton}>Run Single →</Link>
+    )}
+    {/* Show Batch only if user has Batch but not Pro */}
+    {isAuthenticated && hasPlanAccess("batch") && !hasPlanAccess("seoPro") && (
       <Link href="/dashboard/batch" style={cardButton}>Run Batch →</Link>
+    )}
+    {/* Show Pro if user has Pro */}
+    {isAuthenticated && hasPlanAccess("seoPro") && (
+      <>
+        <Link href="/dashboard/seo-pro" style={cardButton}>Run SEO-Pro →</Link>
+        <Link href="/test-category-matcher" style={cardButton}>Category Matcher →</Link>
+      </>
+    )}
+    {/* Show upgrade options if not authenticated or on lower plan */}
+    {!isAuthenticated && (
+      <Link href="/register" style={cardButton}>Sign Up →</Link>
     )}
   </div>
 </div>

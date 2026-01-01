@@ -57,14 +57,14 @@ export default function TestCategoryMatcherPage() {
                 marginBottom: "8px",
                 marginTop: 0
               }}>
-                Category Matcher - Test Page
+                Category Matcher
               </h1>
               <p style={{
                 color: "#9ca3af",
                 marginBottom: "32px",
                 marginTop: 0
               }}>
-                Standalone test page for category import and CSV matching
+                Automatically match products from distributor CSVs to your custom category structure
               </p>
             </div>
             <button

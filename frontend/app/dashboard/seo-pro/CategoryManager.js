@@ -114,7 +114,6 @@ export default function CategoryManager() {
           const data = await res.json();
           setError(null);
           await loadCategories();
-          alert(`Successfully imported ${data.count} categories!`);
         } else {
           const errorData = await res.json().catch(() => ({ error: "Failed to import categories" }));
           throw new Error(errorData.error || "Failed to import categories");
@@ -192,7 +191,6 @@ export default function CategoryManager() {
       if (res.ok) {
         setCategories([]);
         setError(null);
-        alert("All categories deleted");
       } else {
         throw new Error("Failed to delete categories");
       }
